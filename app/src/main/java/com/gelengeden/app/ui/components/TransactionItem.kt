@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -134,7 +136,7 @@ fun TransactionItem(
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = "${transaction.category} · ${formatShortDate(transaction.dateMillis)}",
+                        text = transaction.category,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
@@ -142,12 +144,27 @@ fun TransactionItem(
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "${if (isIncome) "+" else "-"}${formatMoney(transaction.amount)}",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = accent,
-                    fontWeight = FontWeight.Bold
-                )
+                Column(
+                    modifier = Modifier.widthIn(min = 84.dp),
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = "${if (isIncome) "+" else "-"}${formatMoney(transaction.amount)}",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = accent,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.End
+                    )
+                    Text(
+                        text = formatShortDate(transaction.dateMillis),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        textAlign = TextAlign.End
+                    )
+                }
                 IconButton(onClick = onDelete) {
                     Icon(
                         imageVector = Icons.Default.Delete,
