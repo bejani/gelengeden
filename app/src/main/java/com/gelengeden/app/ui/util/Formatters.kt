@@ -44,6 +44,10 @@ fun formatPercent(ratio: Double): String =
 fun formatDate(millis: Long): String =
     SimpleDateFormat("dd MMM yyyy", appLocale).format(Date(millis))
 
+/** Compact day-and-month date used in transaction-list cards. */
+fun formatShortDate(millis: Long): String =
+    SimpleDateFormat("dd MMM", appLocale).format(Date(millis))
+
 fun formatDateTime(millis: Long): String =
     SimpleDateFormat("dd MMM yyyy · HH:mm", appLocale).format(Date(millis))
 

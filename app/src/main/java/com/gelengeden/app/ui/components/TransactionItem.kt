@@ -40,7 +40,7 @@ import com.gelengeden.app.data.Transaction
 import com.gelengeden.app.data.TransactionType
 import com.gelengeden.app.ui.theme.ExpenseRed
 import com.gelengeden.app.ui.theme.IncomeGreen
-import com.gelengeden.app.ui.util.formatDate
+import com.gelengeden.app.ui.util.formatShortDate
 import com.gelengeden.app.ui.util.formatMoney
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -134,7 +134,7 @@ fun TransactionItem(
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = "${transaction.category} · ${formatDate(transaction.dateMillis)}",
+                        text = "${transaction.category} · ${formatShortDate(transaction.dateMillis)}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
@@ -142,19 +142,12 @@ fun TransactionItem(
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = "${if (isIncome) "+" else "-"}${formatMoney(transaction.amount)}",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = accent,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = if (isIncome) "درآمد" else "هزینه",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                Text(
+                    text = "${if (isIncome) "+" else "-"}${formatMoney(transaction.amount)}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = accent,
+                    fontWeight = FontWeight.Bold
+                )
                 IconButton(onClick = onDelete) {
                     Icon(
                         imageVector = Icons.Default.Delete,
