@@ -34,7 +34,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.TableChart
-import androidx.compose.material.icons.filled.TextSnippet
+import androidx.compose.material.icons.automirrored.filled.TextSnippet
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -522,7 +522,7 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(
-                            imageVector = Icons.Default.TextSnippet,
+                            imageVector = Icons.AutoMirrored.Filled.TextSnippet,
                             contentDescription = null
                         )
                         Spacer(modifier = Modifier.width(8.dp))

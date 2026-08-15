@@ -10,6 +10,15 @@
 *.apk
 *.ap_
 *.aab
+# Signing keys and local credentials must never be committed.
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+/keystore/
+/keystore.properties
+/key.properties
 app/build/
 **/build/
 .kotlin/

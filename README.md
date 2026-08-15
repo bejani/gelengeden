@@ -20,16 +20,19 @@ Built with **Kotlin**, **Jetpack Compose**, **Material 3**, and **Room**.
 
 ## Open in Android Studio
 
-1. Open **Android Studio**
-2. **File → Open** and select the `gelengeden` folder
-3. Wait for Gradle sync
-4. Run on an emulator or device (API 26+)
+1. Open **Android Studio**.
+2. Choose **File → Open** and select the `gelengeden` folder.
+3. Wait for Gradle sync to finish.
+4. Run on an emulator or device with Android API 26 or later.
 
-If Gradle wrapper jars are missing, Android Studio will offer to generate them, or use:
+The Gradle Wrapper is included. From a terminal, use the following commands:
 
 ```bash
-gradle wrapper
+./gradlew assembleDebug
+./gradlew testDebugUnitTest
 ```
+
+The debug APK is generated at `app/build/outputs/apk/debug/app-debug.apk`.
 
 ## Project structure
 
@@ -52,4 +55,15 @@ app/src/main/java/com/gelengeden/app/
 
 - Android Studio Ladybug (or newer)
 - JDK 17
-- minSdk 26 / targetSdk 35
+- Android SDK Platform 34
+- minSdk 26 / targetSdk 34
+
+## Data and security
+
+Financial data stays in the local Room database. Android device/cloud backup is intentionally disabled so that app-lock preferences and private financial records are not copied through the system backup channel. Use the in-app JSON backup and restore flow when you choose to move or preserve your data.
+
+Release signing keys are deliberately excluded from this repository. Create and store them securely outside version control before distributing a signed release.
+
+## Continuous integration
+
+GitHub Actions validates the Gradle Wrapper, runs debug unit tests, builds a debug APK, and retains the resulting APK as a short-lived workflow artifact for every push and pull request to `main`.
