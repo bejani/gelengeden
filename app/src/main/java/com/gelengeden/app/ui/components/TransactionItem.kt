@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -29,7 +30,6 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -55,23 +55,17 @@ fun TransactionItem(
 ) {
     val isIncome = transaction.type == TransactionType.INCOME
     val accent = if (isIncome) IncomeGreen else ExpenseRed
+    val cardShape = RoundedCornerShape(16.dp)
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
             if (value == SwipeToDismissBoxValue.EndToStart) {
                 onDelete()
-                true
-            } else {
-                false
             }
+            // Keep the row settled while the confirmation dialog is displayed. It is only
+            // removed after confirmation, so cancelling cannot leave a red reveal behind.
+            false
         }
     )
-
-    // Reset if not deleted (e.g. user cancelled)
-    LaunchedEffect(dismissState.currentValue) {
-        if (dismissState.currentValue != SwipeToDismissBoxValue.Settled) {
-            // keep state for animation
-        }
-    }
 
     SwipeToDismissBox(
         state = dismissState,
@@ -79,8 +73,8 @@ fun TransactionItem(
         backgroundContent = {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
+                    .fillMaxSize()
+                    .clip(cardShape)
                     .background(ExpenseRed)
                     .padding(horizontal = 20.dp),
                 contentAlignment = Alignment.CenterEnd
@@ -92,13 +86,13 @@ fun TransactionItem(
                 )
             }
         },
-        modifier = modifier
+        modifier = modifier.clip(cardShape)
     ) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(onClick = onClick),
-            shape = RoundedCornerShape(16.dp),
+            shape = cardShape,
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface
             ),
