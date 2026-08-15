@@ -20,6 +20,21 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE type = :type ORDER BY dateMillis DESC")
     fun getTransactionsByType(type: TransactionType): Flow<List<Transaction>>
 
+    @Query(
+        """
+        SELECT * FROM transactions
+        WHERE category = :category AND type = :type
+          AND dateMillis BETWEEN :startMillis AND :endMillis
+        ORDER BY dateMillis DESC
+        """
+    )
+    fun getTransactionsByCategory(
+        category: String,
+        type: TransactionType,
+        startMillis: Long,
+        endMillis: Long
+    ): Flow<List<Transaction>>
+
     @Query("SELECT * FROM transactions WHERE id = :id")
     suspend fun getTransactionById(id: Long): Transaction?
 

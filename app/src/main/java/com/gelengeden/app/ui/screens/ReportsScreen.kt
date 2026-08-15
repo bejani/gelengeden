@@ -1,6 +1,7 @@
 package com.gelengeden.app.ui.screens
 
 import android.app.DatePickerDialog
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -67,7 +68,8 @@ import java.util.Calendar
 @Composable
 fun ReportsScreen(
     viewModel: TransactionViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onCategoryClick: (CategoryTotal, Long, Long) -> Unit
 ) {
     val report by viewModel.reportState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -274,7 +276,13 @@ fun ReportsScreen(
                 }
                 val maxCategory = report.categoryBreakdown.maxOf { it.amount }.coerceAtLeast(1.0)
                 items(report.categoryBreakdown) { item ->
-                    CategoryBreakdownRow(item = item, maxAmount = maxCategory)
+                    CategoryBreakdownRow(
+                        item = item,
+                        maxAmount = maxCategory,
+                        onClick = {
+                            onCategoryClick(item, report.range.startMillis, report.range.endMillis)
+                        }
+                    )
                 }
             }
 
@@ -512,13 +520,16 @@ private fun PeriodSummaryCard(
 @Composable
 private fun CategoryBreakdownRow(
     item: CategoryTotal,
-    maxAmount: Double
+    maxAmount: Double,
+    onClick: () -> Unit
 ) {
     val accent = if (item.type == TransactionType.INCOME) IncomeGreen else ExpenseRed
     val progress = (item.amount / maxAmount).toFloat().coerceIn(0f, 1f)
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)

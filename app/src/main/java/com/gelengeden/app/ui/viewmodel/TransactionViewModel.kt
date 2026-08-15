@@ -233,6 +233,13 @@ class TransactionViewModel(
         }
     }
 
+    fun getTransactionsForCategory(
+        category: String,
+        type: TransactionType,
+        startMillis: Long,
+        endMillis: Long
+    ) = repository.getTransactionsByCategory(category, type, startMillis, endMillis)
+
     fun addTransaction(
         title: String,
         amount: Double,

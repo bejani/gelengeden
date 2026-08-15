@@ -290,4 +290,11 @@
     <string name="sms_review_confirm">Confirm and record</string>
     <string name="sms_review_missing_title">Please enter a transaction title</string>
 
+    <!-- Category drill-down -->
+    <string name="category_detail_title">Category details</string>
+    <string name="category_detail_transaction_count">%1$d transactions</string>
+    <string name="category_detail_all_time">All transactions</string>
+    <string name="category_detail_period">Period: %1$s to %2$s</string>
+    <string name="category_detail_empty">There are no transactions in this category and period.</string>
+
 </resources>

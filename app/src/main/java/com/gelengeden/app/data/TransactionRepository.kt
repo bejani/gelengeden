@@ -17,6 +17,14 @@ class TransactionRepository(
     fun getTransactionsByType(type: TransactionType): Flow<List<Transaction>> =
         transactionDao.getTransactionsByType(type)
 
+    fun getTransactionsByCategory(
+        category: String,
+        type: TransactionType,
+        startMillis: Long,
+        endMillis: Long
+    ): Flow<List<Transaction>> =
+        transactionDao.getTransactionsByCategory(category, type, startMillis, endMillis)
+
     fun getTotalIncome(): Flow<Double> = transactionDao.getTotalByType(TransactionType.INCOME)
 
     fun getTotalExpense(): Flow<Double> = transactionDao.getTotalByType(TransactionType.EXPENSE)

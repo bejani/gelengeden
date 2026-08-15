@@ -297,4 +297,11 @@
     <string name="sms_review_confirm">تأیید و ثبت</string>
     <string name="sms_review_missing_title">لطفاً عنوان تراکنش را وارد کنید</string>
 
+    <!-- Category drill-down -->
+    <string name="category_detail_title">جزئیات دسته‌بندی</string>
+    <string name="category_detail_transaction_count">%1$d تراکنش</string>
+    <string name="category_detail_all_time">همهٔ تراکنش‌ها</string>
+    <string name="category_detail_period">بازه: %1$s تا %2$s</string>
+    <string name="category_detail_empty">در این دسته و بازه، تراکنشی وجود ندارد.</string>
+
 </resources>

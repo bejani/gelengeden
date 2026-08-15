@@ -1,5 +1,6 @@
 package com.gelengeden.app.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -54,7 +55,8 @@ import com.gelengeden.app.ui.viewmodel.TransactionViewModel
 @Composable
 fun ManageCategoriesScreen(
     viewModel: TransactionViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onCategoryClick: (Category) -> Unit
 ) {
     val incomeCategories by viewModel.incomeCategories.collectAsStateWithLifecycle()
     val expenseCategories by viewModel.expenseCategories.collectAsStateWithLifecycle()
@@ -147,6 +149,7 @@ fun ManageCategoriesScreen(
                         CategoryRow(
                             category = category,
                             canDelete = categories.size > 1,
+                            onClick = { onCategoryClick(category) },
                             onEdit = { editingCategory = category },
                             onDelete = { deletingCategory = category }
                         )
@@ -219,11 +222,14 @@ fun ManageCategoriesScreen(
 private fun CategoryRow(
     category: Category,
     canDelete: Boolean,
+    onClick: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
