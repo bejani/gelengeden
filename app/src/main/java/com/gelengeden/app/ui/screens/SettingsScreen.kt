@@ -1,5 +1,6 @@
 package com.gelengeden.app.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,6 +31,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -43,6 +45,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
@@ -55,6 +58,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gelengeden.app.R
+import com.gelengeden.app.data.AppearanceManager
 import com.gelengeden.app.data.AuthManager
 import com.gelengeden.app.data.AuthManager.LoginMethod
 import com.gelengeden.app.data.PatternCredential
@@ -71,6 +75,7 @@ private enum class PatternSetupStep {
 @Composable
 fun SettingsScreen(
     authViewModel: AuthViewModel,
+    appearanceManager: AppearanceManager,
     onBack: () -> Unit,
     onBankSmsClick: () -> Unit,
     onLoggedOut: () -> Unit
@@ -78,6 +83,7 @@ fun SettingsScreen(
     val authState by authViewModel.uiState.collectAsStateWithLifecycle()
     val changeState by authViewModel.changePasswordState.collectAsStateWithLifecycle()
     val patternState by authViewModel.patternSettingsState.collectAsStateWithLifecycle()
+    val themeMode by appearanceManager.themeMode.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -154,6 +160,47 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = stringResource(R.string.settings_appearance_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = stringResource(R.string.settings_appearance_body),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        AppearanceModeOption(
+                            label = stringResource(R.string.settings_theme_system),
+                            selected = themeMode == AppearanceManager.ThemeMode.SYSTEM,
+                            onClick = { appearanceManager.setThemeMode(AppearanceManager.ThemeMode.SYSTEM) }
+                        )
+                        AppearanceModeOption(
+                            label = stringResource(R.string.settings_theme_light),
+                            selected = themeMode == AppearanceManager.ThemeMode.LIGHT,
+                            onClick = { appearanceManager.setThemeMode(AppearanceManager.ThemeMode.LIGHT) }
+                        )
+                        AppearanceModeOption(
+                            label = stringResource(R.string.settings_theme_dark),
+                            selected = themeMode == AppearanceManager.ThemeMode.DARK,
+                            onClick = { appearanceManager.setThemeMode(AppearanceManager.ThemeMode.DARK) }
+                        )
+                    }
+                }
             }
 
             item {
@@ -535,6 +582,25 @@ fun SettingsScreen(
 
             item { Spacer(modifier = Modifier.height(24.dp)) }
         }
+    }
+}
+
+@Composable
+private fun AppearanceModeOption(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(selected = selected, onClick = onClick)
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = label, style = MaterialTheme.typography.bodyLarge)
     }
 }
 

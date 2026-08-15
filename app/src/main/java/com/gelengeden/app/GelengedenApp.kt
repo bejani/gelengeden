@@ -2,6 +2,7 @@ package com.gelengeden.app
 
 import android.app.Application
 import android.content.Context
+import com.gelengeden.app.data.AppearanceManager
 import com.gelengeden.app.data.AppDatabase
 import com.gelengeden.app.data.AuthManager
 import com.gelengeden.app.data.TransactionRepository
@@ -19,6 +20,7 @@ class GelengedenApp : Application() {
     val database by lazy { AppDatabase.getInstance(this) }
     val repository by lazy { TransactionRepository(database) }
     val authManager by lazy { AuthManager(this) }
+    val appearanceManager by lazy { AppearanceManager(this) }
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 

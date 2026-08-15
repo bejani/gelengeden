@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -18,6 +19,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.gelengeden.app.data.AppearanceManager
 import com.gelengeden.app.ui.navigation.GelengedenNavGraph
 import com.gelengeden.app.ui.screens.LoginScreen
 import com.gelengeden.app.ui.theme.GelengedenTheme
@@ -39,7 +41,13 @@ class MainActivity : ComponentActivity() {
         val app = application as GelengedenApp
 
         setContent {
-            GelengedenTheme {
+            val themeMode by app.appearanceManager.themeMode.collectAsStateWithLifecycle()
+            val darkTheme = when (themeMode) {
+                AppearanceManager.ThemeMode.SYSTEM -> isSystemInDarkTheme()
+                AppearanceManager.ThemeMode.LIGHT -> false
+                AppearanceManager.ThemeMode.DARK -> true
+            }
+            GelengedenTheme(darkTheme = darkTheme) {
                 // Force RTL for Persian UI even if system layout direction differs
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                     Surface(modifier = Modifier.fillMaxSize()) {
@@ -70,7 +78,8 @@ class MainActivity : ComponentActivity() {
                                 GelengedenNavGraph(
                                     navController = navController,
                                     viewModel = viewModel,
-                                    authViewModel = authViewModel
+                                    authViewModel = authViewModel,
+                                    appearanceManager = app.appearanceManager
                                 )
                             }
                         }

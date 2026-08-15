@@ -229,6 +229,11 @@
     <string name="settings_title">تنظیمات</string>
     <string name="settings_cd">تنظیمات</string>
     <string name="settings_subtitle">امنیت برنامه و مدیریت رمز عبور.</string>
+    <string name="settings_appearance_title">ظاهر برنامه</string>
+    <string name="settings_appearance_body">حالت نمایش دلخواه را انتخاب کنید. تغییر بلافاصله در تمام برنامه اعمال می‌شود.</string>
+    <string name="settings_theme_system">هماهنگ با تنظیمات گوشی</string>
+    <string name="settings_theme_light">حالت روشن</string>
+    <string name="settings_theme_dark">حالت تیره</string>
     <string name="settings_change_password_title">تغییر رمز عبور</string>
     <string name="settings_change_password_body">رمز فعلی را وارد کنید و رمز جدید بسازید (حداقل %1$d کاراکتر).</string>
     <string name="settings_current_password">رمز فعلی</string>

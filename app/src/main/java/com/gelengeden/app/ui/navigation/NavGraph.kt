@@ -7,6 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.gelengeden.app.data.AppearanceManager
 import com.gelengeden.app.ui.screens.AboutScreen
 import com.gelengeden.app.ui.screens.AddEditTransactionScreen
 import com.gelengeden.app.ui.screens.BackupRestoreScreen
@@ -48,7 +49,8 @@ object Routes {
 fun GelengedenNavGraph(
     navController: NavHostController,
     viewModel: TransactionViewModel,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    appearanceManager: AppearanceManager
 ) {
     NavHost(
         navController = navController,
@@ -159,6 +161,7 @@ fun GelengedenNavGraph(
         composable(Routes.SETTINGS) {
             SettingsScreen(
                 authViewModel = authViewModel,
+                appearanceManager = appearanceManager,
                 onBack = { navController.popBackStack() },
                 onBankSmsClick = { navController.navigate(Routes.BANK_SMS_SETTINGS) },
                 onLoggedOut = {

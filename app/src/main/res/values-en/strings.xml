@@ -222,6 +222,11 @@
     <string name="settings_title">Settings</string>
     <string name="settings_cd">Settings</string>
     <string name="settings_subtitle">App security and password management.</string>
+    <string name="settings_appearance_title">Appearance</string>
+    <string name="settings_appearance_body">Choose how the app looks. Your selection is applied immediately across the app.</string>
+    <string name="settings_theme_system">Use device setting</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
     <string name="settings_change_password_title">Change password</string>
     <string name="settings_change_password_body">Enter your current password and choose a new one (at least %1$d characters).</string>
     <string name="settings_current_password">Current password</string>
