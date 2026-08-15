@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -110,10 +112,13 @@ fun HomeScreen(
     onReportsClick: () -> Unit,
     onBackupClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    onAboutClick: () -> Unit
+    onAboutClick: () -> Unit,
+    onQuickAddTemplatesClick: () -> Unit,
+    onQuickAddClick: (Long) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val pendingBankSms by viewModel.pendingBankSms.collectAsStateWithLifecycle()
+    val quickAddTemplates by viewModel.quickAddTemplates.collectAsStateWithLifecycle()
     var deferredBankSmsId by remember { mutableStateOf<Long?>(null) }
     val reviewSms = pendingBankSms.firstOrNull { it.id != deferredBankSmsId }
     var pendingDelete by remember { mutableStateOf<Transaction?>(null) }
@@ -360,6 +365,50 @@ fun HomeScreen(
                         totalIncome = uiState.totalIncome,
                         totalExpense = uiState.totalExpense
                     )
+                }
+
+                item {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(R.string.quick_add_home_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.weight(1f)
+                            )
+                            TextButton(onClick = onQuickAddTemplatesClick) {
+                                Text(stringResource(R.string.quick_add_manage))
+                            }
+                        }
+                        if (quickAddTemplates.isEmpty()) {
+                            Text(
+                                text = stringResource(R.string.quick_add_home_empty),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        } else {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .horizontalScroll(rememberScrollState()),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                quickAddTemplates.forEach { template ->
+                                    FilterChip(
+                                        selected = false,
+                                        onClick = { onQuickAddClick(template.id) },
+                                        label = { Text(template.title) }
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
 
                 item {

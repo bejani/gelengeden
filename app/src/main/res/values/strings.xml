@@ -225,6 +225,43 @@
     <string name="login_error_wrong_password">رمز عبور نادرست است</string>
     <string name="login_error_generic">عملیات ناموفق بود. دوباره تلاش کنید</string>
 
+    <!-- Quick-add templates -->
+    <string name="quick_add_home_title">ثبت سریع</string>
+    <string name="quick_add_manage">مدیریت</string>
+    <string name="quick_add_home_empty">برای ثبت سریع موردهای متغیر مانند خرید نان، یک میان‌بر بسازید.</string>
+    <string name="quick_add_templates_title">میان‌برهای ثبت سریع</string>
+    <string name="quick_add_templates_body">میان‌برها فرم تراکنش را با عنوان، دسته و تاریخ امروز آماده می‌کنند؛ مبلغ هر بار را خودتان وارد و تأیید می‌کنید.</string>
+    <string name="quick_add_templates_empty">هنوز میان‌بری ندارید. با دکمهٔ + یک مورد مانند «خرید نان» بسازید.</string>
+    <string name="quick_add_new_template">افزودن میان‌بر</string>
+    <string name="quick_add_create_title">میان‌بر جدید</string>
+    <string name="quick_add_edit_title">ویرایش میان‌بر</string>
+    <string name="quick_add_delete_title">حذف میان‌بر؟</string>
+    <string name="quick_add_delete_message">میان‌بر «%1$s» حذف می‌شود؛ تراکنش‌های قبلی تغییری نمی‌کنند.</string>
+    <string name="quick_add_template_meta">%1$s · %2$s</string>
+    <string name="quick_add_use">استفاده</string>
+    <string name="quick_add_edit_cd">ویرایش میان‌بر %1$s</string>
+    <string name="quick_add_delete_cd">حذف میان‌بر %1$s</string>
+    <string name="quick_add_name_label">نام میان‌بر</string>
+    <string name="quick_add_name_hint">مثلاً خرید نان</string>
+    <string name="quick_add_note_label">یادداشت پیش‌فرض (اختیاری)</string>
+    <string name="quick_add_name_required">نام میان‌بر را وارد کنید</string>
+    <string name="quick_add_category_required">یک دسته انتخاب کنید</string>
+    <string name="quick_add_transaction_title">ثبت از میان‌بر</string>
+
+    <!-- Automatic backup -->
+    <string name="auto_backup_title">پشتیبان‌گیری خودکار</string>
+    <string name="auto_backup_body">هر روز یک فایل پشتیبان در پوشهٔ انتخابی شما ساخته می‌شود. زمان اجرا ممکن است برای حفظ باتری توسط گوشی جابه‌جا شود.</string>
+    <string name="auto_backup_select_folder">انتخاب پوشهٔ پشتیبان</string>
+    <string name="auto_backup_change_folder">تغییر پوشهٔ پشتیبان</string>
+    <string name="auto_backup_disable">خاموش‌کردن پشتیبان‌گیری خودکار</string>
+    <string name="auto_backup_run_now">تهیهٔ پشتیبان همین حالا</string>
+    <string name="auto_backup_folder_selected">پوشهٔ انتخاب‌شده: %1$s</string>
+    <string name="auto_backup_folder_fallback">پوشهٔ انتخابی</string>
+    <string name="auto_backup_last_success">آخرین پشتیبان موفق: %1$s</string>
+    <string name="auto_backup_now_success">فایل پشتیبان با موفقیت در پوشهٔ انتخابی ساخته شد</string>
+    <string name="auto_backup_now_failed">تهیهٔ پشتیبان خودکار انجام نشد؛ دسترسی پوشه را بررسی کنید</string>
+    <string name="auto_backup_folder_permission_failed">دسترسی پایدار به پوشهٔ انتخاب‌شده داده نشد</string>
+
     <!-- Settings -->
     <string name="settings_title">تنظیمات</string>
     <string name="settings_cd">تنظیمات</string>

@@ -9,8 +9,14 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [Transaction::class, Category::class, BankSender::class, PendingBankSms::class],
-    version = 4,
+    entities = [
+        Transaction::class,
+        Category::class,
+        BankSender::class,
+        PendingBankSms::class,
+        QuickAddTemplate::class
+    ],
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -20,6 +26,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
     abstract fun bankSenderDao(): BankSenderDao
     abstract fun pendingBankSmsDao(): PendingBankSmsDao
+    abstract fun quickAddTemplateDao(): QuickAddTemplateDao
 
     companion object {
         @Volatile
@@ -89,6 +96,29 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS quick_add_templates (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        title TEXT NOT NULL,
+                        type TEXT NOT NULL,
+                        category TEXT NOT NULL,
+                        note TEXT NOT NULL,
+                        sortOrder INTEGER NOT NULL,
+                        isEnabled INTEGER NOT NULL,
+                        createdAt INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_quick_add_templates_sortOrder " +
+                        "ON quick_add_templates(sortOrder)"
+                )
+            }
+        }
+
         private fun seedDefaultCategories(db: SupportSQLiteDatabase) {
             DefaultCategories.income.forEachIndexed { index, name ->
                 db.execSQL(
@@ -111,7 +141,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "gelengeden.db"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)

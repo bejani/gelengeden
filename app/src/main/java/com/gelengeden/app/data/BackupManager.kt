@@ -4,7 +4,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /** Current on-disk backup schema version. */
-const val BACKUP_SCHEMA_VERSION = 1
+const val BACKUP_SCHEMA_VERSION = 2
 
 const val BACKUP_APP_ID = "gelengeden"
 
@@ -12,13 +12,15 @@ data class BackupData(
     val version: Int,
     val exportedAt: Long,
     val categories: List<Category>,
-    val transactions: List<Transaction>
+    val transactions: List<Transaction>,
+    val quickAddTemplates: List<QuickAddTemplate> = emptyList()
 )
 
 data class BackupSummary(
     val categoryCount: Int,
     val transactionCount: Int,
-    val exportedAt: Long
+    val exportedAt: Long,
+    val quickAddTemplateCount: Int = 0
 )
 
 object BackupManager {
@@ -55,6 +57,22 @@ object BackupManager {
             )
         }
         root.put("transactions", transactionsJson)
+
+        val templatesJson = JSONArray()
+        data.quickAddTemplates.forEach { template ->
+            templatesJson.put(
+                JSONObject().apply {
+                    put("title", template.title)
+                    put("type", template.type.name)
+                    put("category", template.category)
+                    put("note", template.note)
+                    put("sortOrder", template.sortOrder)
+                    put("isEnabled", template.isEnabled)
+                    put("createdAt", template.createdAt)
+                }
+            )
+        }
+        root.put("quickAddTemplates", templatesJson)
 
         return root.toString(2)
     }
@@ -131,12 +149,39 @@ object BackupManager {
                 }
             }
 
+            val templatesJson = root.optJSONArray("quickAddTemplates") ?: JSONArray()
+            val templates = buildList {
+                for (i in 0 until templatesJson.length()) {
+                    val obj = templatesJson.getJSONObject(i)
+                    val typeName = obj.getString("type")
+                    val type = runCatching { TransactionType.valueOf(typeName) }.getOrElse {
+                        return Result.failure(IllegalArgumentException("Invalid template type: $typeName"))
+                    }
+                    val title = obj.optString("title", "").trim()
+                    if (title.isEmpty()) continue
+                    val rawCategory = obj.optString("category", "").trim()
+                    add(
+                        QuickAddTemplate(
+                            id = 0,
+                            title = title,
+                            type = type,
+                            category = rawCategory.ifBlank { fallbackCategoryName(type) },
+                            note = obj.optString("note", ""),
+                            sortOrder = obj.optInt("sortOrder", size),
+                            isEnabled = obj.optBoolean("isEnabled", true),
+                            createdAt = obj.optLong("createdAt", System.currentTimeMillis())
+                        )
+                    )
+                }
+            }
+
             Result.success(
                 BackupData(
                     version = version,
                     exportedAt = root.optLong("exportedAt", 0L),
                     categories = categories,
-                    transactions = transactions
+                    transactions = transactions,
+                    quickAddTemplates = templates
                 )
             )
         } catch (e: Exception) {
@@ -165,6 +210,9 @@ object BackupManager {
         data.transactions.forEach { tx ->
             ensureCategory(tx.category, tx.type)
         }
+        data.quickAddTemplates.forEach { template ->
+            ensureCategory(template.category, template.type)
+        }
 
         if (categories.none { it.type == TransactionType.INCOME }) {
             ensureCategory(fallbackCategoryName(TransactionType.INCOME), TransactionType.INCOME)
@@ -179,7 +227,8 @@ object BackupManager {
     fun summaryOf(data: BackupData): BackupSummary = BackupSummary(
         categoryCount = data.categories.size,
         transactionCount = data.transactions.size,
-        exportedAt = data.exportedAt
+        exportedAt = data.exportedAt,
+        quickAddTemplateCount = data.quickAddTemplates.size
     )
 
     private fun fallbackCategoryName(type: TransactionType): String {

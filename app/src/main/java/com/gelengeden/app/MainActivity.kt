@@ -79,7 +79,8 @@ class MainActivity : ComponentActivity() {
                                     navController = navController,
                                     viewModel = viewModel,
                                     authViewModel = authViewModel,
-                                    appearanceManager = app.appearanceManager
+                                    appearanceManager = app.appearanceManager,
+                                    autoBackupManager = app.autoBackupManager
                                 )
                             }
                         }

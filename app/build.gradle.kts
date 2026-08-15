@@ -63,6 +63,8 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
 
     implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
+    implementation("androidx.documentfile:documentfile:1.0.1")
 
     // Room (kapt — more reliable when KSP plugin cannot be downloaded)
     val roomVersion = "2.6.1"

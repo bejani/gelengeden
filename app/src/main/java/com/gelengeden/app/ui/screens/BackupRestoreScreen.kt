@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.documentfile.provider.DocumentFile
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -57,6 +58,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gelengeden.app.R
+import com.gelengeden.app.data.AutoBackupManager
 import com.gelengeden.app.data.BackupManager
 import com.gelengeden.app.ui.util.formatPersianDate
 import com.gelengeden.app.ui.viewmodel.TransactionViewModel
@@ -71,6 +73,7 @@ import java.util.Locale
 @Composable
 fun BackupRestoreScreen(
     viewModel: TransactionViewModel,
+    autoBackupManager: AutoBackupManager,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -78,12 +81,14 @@ fun BackupRestoreScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val busy by viewModel.backupBusy.collectAsStateWithLifecycle()
     val dataCounts by viewModel.dataCounts.collectAsStateWithLifecycle()
+    val autoBackupState by autoBackupManager.state.collectAsStateWithLifecycle()
 
     var pendingBackupJson by remember { mutableStateOf<String?>(null) }
     var showRestoreConfirm by remember { mutableStateOf(false) }
     var pendingRestoreJson by remember { mutableStateOf<String?>(null) }
     var restorePreview by remember { mutableStateOf<String?>(null) }
     var lastSavedBackupUri by remember { mutableStateOf<Uri?>(null) }
+    var isAutoBackupRunning by remember { mutableStateOf(false) }
 
     fun shareBackup(uri: Uri) {
         runCatching {
@@ -139,6 +144,46 @@ fun BackupRestoreScreen(
             if (result == SnackbarResult.ActionPerformed) {
                 shareBackup(uri)
             }
+        }
+    }
+
+    val selectBackupFolderLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        val permissionFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        val permissionResult = runCatching {
+            context.contentResolver.takePersistableUriPermission(uri, permissionFlags)
+        }
+        if (permissionResult.isFailure) {
+            scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.auto_backup_folder_permission_failed)) }
+            return@rememberLauncherForActivityResult
+        }
+        val folderName = DocumentFile.fromTreeUri(context, uri)?.name
+        autoBackupManager.configureFolder(uri, folderName)
+        isAutoBackupRunning = true
+        scope.launch {
+            val result = viewModel.withBackupLock { autoBackupManager.runNow().getOrThrow() }
+            isAutoBackupRunning = false
+            snackbarHostState.showSnackbar(
+                context.getString(
+                    if (result.isSuccess) R.string.auto_backup_now_success else R.string.auto_backup_now_failed
+                )
+            )
+        }
+    }
+
+    fun runAutomaticBackupNow() {
+        if (isAutoBackupRunning || busy || !autoBackupState.isConfigured) return
+        isAutoBackupRunning = true
+        scope.launch {
+            val result = viewModel.withBackupLock { autoBackupManager.runNow().getOrThrow() }
+            isAutoBackupRunning = false
+            snackbarHostState.showSnackbar(
+                context.getString(
+                    if (result.isSuccess) R.string.auto_backup_now_success else R.string.auto_backup_now_failed
+                )
+            )
         }
     }
 
@@ -362,6 +407,100 @@ fun BackupRestoreScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(stringResource(R.string.backup_share_again))
+                            }
+                        }
+                    }
+                }
+            }
+
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    )
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Storage,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = stringResource(R.string.auto_backup_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(R.string.auto_backup_body),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.85f)
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        if (autoBackupState.isConfigured) {
+                            Text(
+                                text = stringResource(
+                                    R.string.auto_backup_folder_selected,
+                                    autoBackupState.folderName ?: stringResource(R.string.auto_backup_folder_fallback)
+                                ),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            autoBackupState.lastSuccessAt?.let { timestamp ->
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = stringResource(
+                                        R.string.auto_backup_last_success,
+                                        formatPersianDate(timestamp)
+                                    ),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.85f)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Button(
+                                onClick = { runAutomaticBackupNow() },
+                                enabled = !busy && !isAutoBackupRunning,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                if (isAutoBackupRunning) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(18.dp),
+                                        strokeWidth = 2.dp,
+                                        color = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                }
+                                Text(stringResource(R.string.auto_backup_run_now))
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            OutlinedButton(
+                                onClick = { selectBackupFolderLauncher.launch(null) },
+                                enabled = !busy && !isAutoBackupRunning,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(stringResource(R.string.auto_backup_change_folder))
+                            }
+                            TextButton(
+                                onClick = { autoBackupManager.disable() },
+                                enabled = !busy && !isAutoBackupRunning,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(stringResource(R.string.auto_backup_disable))
+                            }
+                        } else {
+                            Button(
+                                onClick = { selectBackupFolderLauncher.launch(null) },
+                                enabled = !busy && !isAutoBackupRunning,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(stringResource(R.string.auto_backup_select_folder))
                             }
                         }
                     }

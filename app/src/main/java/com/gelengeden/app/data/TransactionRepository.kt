@@ -11,6 +11,7 @@ class TransactionRepository(
     private val categoryDao: CategoryDao = database.categoryDao()
     private val bankSenderDao: BankSenderDao = database.bankSenderDao()
     private val pendingBankSmsDao: PendingBankSmsDao = database.pendingBankSmsDao()
+    private val quickAddTemplateDao: QuickAddTemplateDao = database.quickAddTemplateDao()
 
     fun getAllTransactions(): Flow<List<Transaction>> = transactionDao.getAllTransactions()
 
@@ -82,9 +83,12 @@ class TransactionRepository(
             return Result.failure(IllegalArgumentException("این دسته از قبل وجود دارد"))
         }
         val oldName = category.name
-        categoryDao.update(category.copy(name = trimmed))
-        if (oldName != trimmed) {
-            categoryDao.renameInTransactions(oldName, trimmed, category.type)
+        database.withTransaction {
+            categoryDao.update(category.copy(name = trimmed))
+            if (oldName != trimmed) {
+                categoryDao.renameInTransactions(oldName, trimmed, category.type)
+                quickAddTemplateDao.renameCategory(oldName, trimmed, category.type)
+            }
         }
         return Result.success(Unit)
     }
@@ -101,10 +105,63 @@ class TransactionRepository(
             ?: return Result.failure(
                 IllegalArgumentException("دستهٔ جایگزین پیدا نشد")
             )
-        categoryDao.reassignTransactions(category.name, fallback, category.type)
-        categoryDao.delete(category)
+        database.withTransaction {
+            categoryDao.reassignTransactions(category.name, fallback, category.type)
+            quickAddTemplateDao.renameCategory(category.name, fallback, category.type)
+            categoryDao.delete(category)
+        }
         return Result.success(Unit)
     }
+
+    // --- Quick-add templates ---
+
+    fun getQuickAddTemplates(): Flow<List<QuickAddTemplate>> = quickAddTemplateDao.getEnabled()
+
+    fun getAllQuickAddTemplates(): Flow<List<QuickAddTemplate>> = quickAddTemplateDao.getAll()
+
+    suspend fun getQuickAddTemplateById(id: Long): QuickAddTemplate? = quickAddTemplateDao.getById(id)
+
+    suspend fun addQuickAddTemplate(
+        title: String,
+        type: TransactionType,
+        category: String,
+        note: String
+    ): Result<Unit> {
+        val cleanTitle = title.trim()
+        val cleanCategory = category.trim()
+        if (cleanTitle.isEmpty()) {
+            return Result.failure(IllegalArgumentException("نام میان‌بر نمی‌تواند خالی باشد"))
+        }
+        if (cleanCategory.isEmpty()) {
+            return Result.failure(IllegalArgumentException("دستهٔ میان‌بر را انتخاب کنید"))
+        }
+        quickAddTemplateDao.insert(
+            QuickAddTemplate(
+                title = cleanTitle,
+                type = type,
+                category = cleanCategory,
+                note = note.trim(),
+                sortOrder = quickAddTemplateDao.nextSortOrder()
+            )
+        )
+        return Result.success(Unit)
+    }
+
+    suspend fun updateQuickAddTemplate(template: QuickAddTemplate): Result<Unit> {
+        if (template.title.isBlank() || template.category.isBlank()) {
+            return Result.failure(IllegalArgumentException("نام و دستهٔ میان‌بر الزامی است"))
+        }
+        quickAddTemplateDao.update(
+            template.copy(
+                title = template.title.trim(),
+                category = template.category.trim(),
+                note = template.note.trim()
+            )
+        )
+        return Result.success(Unit)
+    }
+
+    suspend fun deleteQuickAddTemplate(template: QuickAddTemplate) = quickAddTemplateDao.delete(template)
 
     // --- Bank SMS senders and review queue ---
 
@@ -185,14 +242,16 @@ class TransactionRepository(
 
     // --- Backup / restore ---
 
-    suspend fun createBackup(): BackupData {
+    suspend fun createBackup(): BackupData = database.withTransaction {
         val categories = categoryDao.getAllCategoriesOnce()
         val transactions = transactionDao.getAllTransactionsOnce()
-        return BackupData(
+        val quickAddTemplates = quickAddTemplateDao.getAllOnce()
+        BackupData(
             version = BACKUP_SCHEMA_VERSION,
             exportedAt = System.currentTimeMillis(),
             categories = categories,
-            transactions = transactions
+            transactions = transactions,
+            quickAddTemplates = quickAddTemplates
         )
     }
 
@@ -212,6 +271,7 @@ class TransactionRepository(
         return try {
             database.withTransaction {
                 transactionDao.deleteAll()
+                quickAddTemplateDao.deleteAll()
                 categoryDao.deleteAll()
 
                 val categoriesToInsert = normalized.categories.map { it.copy(id = 0) }
@@ -225,6 +285,11 @@ class TransactionRepository(
                 val transactionsToInsert = normalized.transactions.map { it.copy(id = 0) }
                 if (transactionsToInsert.isNotEmpty()) {
                     transactionDao.insertAll(transactionsToInsert)
+                }
+
+                val templatesToInsert = normalized.quickAddTemplates.map { it.copy(id = 0) }
+                if (templatesToInsert.isNotEmpty()) {
+                    quickAddTemplateDao.insertAll(templatesToInsert)
                 }
             }
             Result.success(BackupManager.summaryOf(normalized))

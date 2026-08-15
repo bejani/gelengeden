@@ -218,6 +218,43 @@
     <string name="login_error_wrong_password">Incorrect password</string>
     <string name="login_error_generic">Something went wrong. Please try again</string>
 
+    <!-- Quick-add templates -->
+    <string name="quick_add_home_title">Quick add</string>
+    <string name="quick_add_manage">Manage</string>
+    <string name="quick_add_home_empty">Create a shortcut for variable everyday purchases such as bread.</string>
+    <string name="quick_add_templates_title">Quick-add shortcuts</string>
+    <string name="quick_add_templates_body">Shortcuts prefill the transaction title, category, and today’s date. You enter the amount and confirm every time.</string>
+    <string name="quick_add_templates_empty">No shortcuts yet. Use + to create one, such as “Buy bread”.</string>
+    <string name="quick_add_new_template">Add shortcut</string>
+    <string name="quick_add_create_title">New shortcut</string>
+    <string name="quick_add_edit_title">Edit shortcut</string>
+    <string name="quick_add_delete_title">Delete shortcut?</string>
+    <string name="quick_add_delete_message">The “%1$s” shortcut will be removed. Existing transactions will not change.</string>
+    <string name="quick_add_template_meta">%1$s · %2$s</string>
+    <string name="quick_add_use">Use</string>
+    <string name="quick_add_edit_cd">Edit %1$s shortcut</string>
+    <string name="quick_add_delete_cd">Delete %1$s shortcut</string>
+    <string name="quick_add_name_label">Shortcut name</string>
+    <string name="quick_add_name_hint">For example, Buy bread</string>
+    <string name="quick_add_note_label">Default note (optional)</string>
+    <string name="quick_add_name_required">Enter a shortcut name</string>
+    <string name="quick_add_category_required">Choose a category</string>
+    <string name="quick_add_transaction_title">Record from shortcut</string>
+
+    <!-- Automatic backup -->
+    <string name="auto_backup_title">Automatic backup</string>
+    <string name="auto_backup_body">A backup file is created daily in your selected folder. Your device may defer the exact time to preserve battery.</string>
+    <string name="auto_backup_select_folder">Choose backup folder</string>
+    <string name="auto_backup_change_folder">Change backup folder</string>
+    <string name="auto_backup_disable">Turn off automatic backup</string>
+    <string name="auto_backup_run_now">Back up now</string>
+    <string name="auto_backup_folder_selected">Selected folder: %1$s</string>
+    <string name="auto_backup_folder_fallback">Selected folder</string>
+    <string name="auto_backup_last_success">Last successful backup: %1$s</string>
+    <string name="auto_backup_now_success">Backup file was created in the selected folder</string>
+    <string name="auto_backup_now_failed">Automatic backup failed. Check the folder permission.</string>
+    <string name="auto_backup_folder_permission_failed">Persistent access to the selected folder was not granted</string>
+
     <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="settings_cd">Settings</string>

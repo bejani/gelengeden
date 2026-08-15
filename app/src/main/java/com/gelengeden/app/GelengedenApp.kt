@@ -3,6 +3,7 @@ package com.gelengeden.app
 import android.app.Application
 import android.content.Context
 import com.gelengeden.app.data.AppearanceManager
+import com.gelengeden.app.data.AutoBackupManager
 import com.gelengeden.app.data.AppDatabase
 import com.gelengeden.app.data.AuthManager
 import com.gelengeden.app.data.TransactionRepository
@@ -21,6 +22,7 @@ class GelengedenApp : Application() {
     val repository by lazy { TransactionRepository(database) }
     val authManager by lazy { AuthManager(this) }
     val appearanceManager by lazy { AppearanceManager(this) }
+    val autoBackupManager by lazy { AutoBackupManager(this) }
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -30,6 +32,7 @@ class GelengedenApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        autoBackupManager.ensureScheduled()
         observeTotalsForWidget()
     }
 

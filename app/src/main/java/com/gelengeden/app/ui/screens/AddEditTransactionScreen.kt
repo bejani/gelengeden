@@ -72,10 +72,12 @@ import com.gelengeden.app.ui.viewmodel.TransactionViewModel
 fun AddEditTransactionScreen(
     viewModel: TransactionViewModel,
     transactionId: Long? = null,
+    quickAddTemplateId: Long? = null,
     onDone: () -> Unit,
     onBack: () -> Unit
 ) {
     val isEdit = transactionId != null
+    val isQuickAdd = quickAddTemplateId != null
     val allCategories by viewModel.categories.collectAsStateWithLifecycle()
 
     var title by remember { mutableStateOf("") }
@@ -111,7 +113,7 @@ fun AddEditTransactionScreen(
         }
     }
 
-    LaunchedEffect(transactionId) {
+    LaunchedEffect(transactionId, quickAddTemplateId) {
         if (transactionId != null) {
             val tx = viewModel.getTransactionById(transactionId)
             if (tx != null) {
@@ -123,6 +125,15 @@ fun AddEditTransactionScreen(
                 type = tx.type
                 category = tx.category
                 typeIndex = if (tx.type == TransactionType.INCOME) 0 else 1
+            }
+        } else if (quickAddTemplateId != null) {
+            val template = viewModel.getQuickAddTemplateById(quickAddTemplateId)
+            if (template != null) {
+                title = template.title
+                note = template.note
+                type = template.type
+                category = template.category
+                typeIndex = if (template.type == TransactionType.INCOME) 0 else 1
             }
         }
     }
@@ -144,10 +155,10 @@ fun AddEditTransactionScreen(
             TopAppBar(
                 title = {
                     Text(
-                        if (isEdit) {
-                            stringResource(R.string.edit_transaction_title)
-                        } else {
-                            stringResource(R.string.add_transaction_title)
+                        when {
+                            isEdit -> stringResource(R.string.edit_transaction_title)
+                            isQuickAdd -> stringResource(R.string.quick_add_transaction_title)
+                            else -> stringResource(R.string.add_transaction_title)
                         }
                     )
                 },

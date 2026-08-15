@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.gelengeden.app.data.BackupManager
 import com.gelengeden.app.data.BankSender
 import com.gelengeden.app.data.PendingBankSms
+import com.gelengeden.app.data.QuickAddTemplate
 import com.gelengeden.app.data.BackupSummary
 import com.gelengeden.app.data.Category
 import com.gelengeden.app.data.Transaction
@@ -144,6 +145,20 @@ class TransactionViewModel(
             initialValue = emptyList()
         )
 
+    val quickAddTemplates: StateFlow<List<QuickAddTemplate>> = repository.getQuickAddTemplates()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
+
+    val allQuickAddTemplates: StateFlow<List<QuickAddTemplate>> = repository.getAllQuickAddTemplates()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
+
     val expenseCategories: StateFlow<List<Category>> = categories
         .map { list -> list.filter { it.type == TransactionType.EXPENSE } }
         .stateIn(
@@ -171,6 +186,9 @@ class TransactionViewModel(
 
     private val _bankSmsMessage = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val bankSmsMessage: SharedFlow<String> = _bankSmsMessage.asSharedFlow()
+
+    private val _quickAddMessage = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val quickAddMessage: SharedFlow<String> = _quickAddMessage.asSharedFlow()
 
     private val _backupBusy = MutableStateFlow(false)
     val backupBusy: StateFlow<Boolean> = _backupBusy.asStateFlow()
@@ -292,6 +310,9 @@ class TransactionViewModel(
     suspend fun getTransactionById(id: Long): Transaction? =
         repository.getTransactionById(id)
 
+    suspend fun getQuickAddTemplateById(id: Long): QuickAddTemplate? =
+        repository.getQuickAddTemplateById(id)
+
     fun addCategory(name: String, type: TransactionType) {
         viewModelScope.launch {
             repository.addCategory(name, type)
@@ -310,6 +331,31 @@ class TransactionViewModel(
         viewModelScope.launch {
             repository.deleteCategory(category)
                 .onFailure { _categoryMessage.emit(it.message ?: "Could not delete category") }
+        }
+    }
+
+    fun addQuickAddTemplate(
+        title: String,
+        type: TransactionType,
+        category: String,
+        note: String
+    ) {
+        viewModelScope.launch {
+            repository.addQuickAddTemplate(title, type, category, note)
+                .onFailure { _quickAddMessage.emit(it.message ?: "ثبت میان‌بر انجام نشد") }
+        }
+    }
+
+    fun updateQuickAddTemplate(template: QuickAddTemplate) {
+        viewModelScope.launch {
+            repository.updateQuickAddTemplate(template)
+                .onFailure { _quickAddMessage.emit(it.message ?: "ویرایش میان‌بر انجام نشد") }
+        }
+    }
+
+    fun deleteQuickAddTemplate(template: QuickAddTemplate) {
+        viewModelScope.launch {
+            repository.deleteQuickAddTemplate(template)
         }
     }
 

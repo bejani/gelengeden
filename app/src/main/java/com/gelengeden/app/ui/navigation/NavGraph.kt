@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.gelengeden.app.data.AppearanceManager
+import com.gelengeden.app.data.AutoBackupManager
 import com.gelengeden.app.ui.screens.AboutScreen
 import com.gelengeden.app.ui.screens.AddEditTransactionScreen
 import com.gelengeden.app.ui.screens.BackupRestoreScreen
@@ -18,6 +19,7 @@ import com.gelengeden.app.ui.screens.CategoryDetailScreen
 import com.gelengeden.app.ui.screens.HomeScreen
 import com.gelengeden.app.ui.screens.ManageCategoriesScreen
 import com.gelengeden.app.ui.screens.ReportsScreen
+import com.gelengeden.app.ui.screens.QuickAddTemplatesScreen
 import com.gelengeden.app.ui.screens.SettingsScreen
 import com.gelengeden.app.data.TransactionType
 import com.gelengeden.app.ui.viewmodel.AuthViewModel
@@ -27,6 +29,8 @@ object Routes {
     const val HOME = "home"
     const val ADD = "add"
     const val EDIT = "edit/{id}"
+    const val QUICK_ADD = "quick_add/{templateId}"
+    const val QUICK_ADD_TEMPLATES = "quick_add_templates"
     const val CATEGORIES = "categories"
     const val REPORTS = "reports"
     const val BACKUP = "backup"
@@ -36,6 +40,7 @@ object Routes {
     const val CATEGORY_DETAIL = "category_detail/{category}/{type}/{start}/{end}"
 
     fun edit(id: Long) = "edit/$id"
+    fun quickAdd(templateId: Long) = "quick_add/$templateId"
 
     fun categoryDetail(
         category: String,
@@ -50,7 +55,8 @@ fun GelengedenNavGraph(
     navController: NavHostController,
     viewModel: TransactionViewModel,
     authViewModel: AuthViewModel,
-    appearanceManager: AppearanceManager
+    appearanceManager: AppearanceManager,
+    autoBackupManager: AutoBackupManager
 ) {
     NavHost(
         navController = navController,
@@ -65,7 +71,9 @@ fun GelengedenNavGraph(
                 onReportsClick = { navController.navigate(Routes.REPORTS) },
                 onBackupClick = { navController.navigate(Routes.BACKUP) },
                 onSettingsClick = { navController.navigate(Routes.SETTINGS) },
-                onAboutClick = { navController.navigate(Routes.ABOUT) }
+                onAboutClick = { navController.navigate(Routes.ABOUT) },
+                onQuickAddTemplatesClick = { navController.navigate(Routes.QUICK_ADD_TEMPLATES) },
+                onQuickAddClick = { id -> navController.navigate(Routes.quickAdd(id)) }
             )
         }
 
@@ -88,6 +96,26 @@ fun GelengedenNavGraph(
                 transactionId = id,
                 onDone = { navController.popBackStack() },
                 onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = Routes.QUICK_ADD,
+            arguments = listOf(navArgument("templateId") { type = NavType.LongType })
+        ) { entry ->
+            AddEditTransactionScreen(
+                viewModel = viewModel,
+                quickAddTemplateId = entry.arguments?.getLong("templateId"),
+                onDone = { navController.popBackStack() },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.QUICK_ADD_TEMPLATES) {
+            QuickAddTemplatesScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                onUseTemplate = { id -> navController.navigate(Routes.quickAdd(id)) }
             )
         }
 
@@ -154,6 +182,7 @@ fun GelengedenNavGraph(
         composable(Routes.BACKUP) {
             BackupRestoreScreen(
                 viewModel = viewModel,
+                autoBackupManager = autoBackupManager,
                 onBack = { navController.popBackStack() }
             )
         }
