@@ -297,4 +297,25 @@
     <string name="category_detail_period">Period: %1$s to %2$s</string>
     <string name="category_detail_empty">There are no transactions in this category and period.</string>
 
+    <!-- Pattern login -->
+    <string name="settings_login_method_title">Sign-in method</string>
+    <string name="settings_login_method_body">Your password is always retained as a fallback. You can enable a pattern for sign-in.</string>
+    <string name="settings_login_method_password">Password</string>
+    <string name="settings_login_method_pattern">Pattern</string>
+    <string name="settings_pattern_title">Set login pattern</string>
+    <string name="settings_pattern_body">Tap at least 4 nodes in order, then repeat the same pattern to confirm it.</string>
+    <string name="settings_pattern_first">New pattern</string>
+    <string name="settings_pattern_confirm">Confirm pattern</string>
+    <string name="settings_pattern_save">Save and enable pattern</string>
+    <string name="settings_pattern_saved">Login pattern saved and enabled.</string>
+    <string name="pattern_instruction">Tap nodes in order</string>
+    <string name="pattern_clear">Clear pattern</string>
+    <string name="login_pattern_title">Enter your login pattern</string>
+    <string name="login_pattern_subtitle">Tap the nodes in order to unlock the app.</string>
+    <string name="login_use_password">Use password instead</string>
+    <string name="login_use_pattern">Use pattern instead</string>
+    <string name="login_error_pattern_too_short">Choose at least 4 different nodes for the pattern.</string>
+    <string name="login_error_wrong_pattern">The pattern is incorrect.</string>
+    <string name="login_error_pattern_not_set">Create a pattern in Settings first.</string>
+
 </resources>

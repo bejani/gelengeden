@@ -304,4 +304,25 @@
     <string name="category_detail_period">بازه: %1$s تا %2$s</string>
     <string name="category_detail_empty">در این دسته و بازه، تراکنشی وجود ندارد.</string>
 
+    <!-- Pattern login -->
+    <string name="settings_login_method_title">روش ورود</string>
+    <string name="settings_login_method_body">رمز عبور همیشه به‌عنوان روش جایگزین نگه داشته می‌شود. می‌توانید ورود با الگو را فعال کنید.</string>
+    <string name="settings_login_method_password">رمز عبور</string>
+    <string name="settings_login_method_pattern">الگو</string>
+    <string name="settings_pattern_title">تنظیم الگوی ورود</string>
+    <string name="settings_pattern_body">حداقل ۴ نقطه را به ترتیب لمس کنید؛ سپس همان الگو را برای تأیید تکرار کنید.</string>
+    <string name="settings_pattern_first">الگوی جدید</string>
+    <string name="settings_pattern_confirm">تأیید الگو</string>
+    <string name="settings_pattern_save">ذخیره و فعال‌کردن الگو</string>
+    <string name="settings_pattern_saved">الگوی ورود ذخیره و فعال شد.</string>
+    <string name="pattern_instruction">نقطه‌ها را به ترتیب لمس کنید</string>
+    <string name="pattern_clear">پاک‌کردن الگو</string>
+    <string name="login_pattern_title">الگوی ورود را وارد کنید</string>
+    <string name="login_pattern_subtitle">نقطه‌ها را به ترتیب لمس کنید تا برنامه باز شود.</string>
+    <string name="login_use_password">ورود با رمز عبور</string>
+    <string name="login_use_pattern">ورود با الگو</string>
+    <string name="login_error_pattern_too_short">الگو باید حداقل ۴ نقطهٔ متفاوت داشته باشد.</string>
+    <string name="login_error_wrong_pattern">الگو نادرست است.</string>
+    <string name="login_error_pattern_not_set">ابتدا یک الگو در تنظیمات بسازید.</string>
+
 </resources>

@@ -3,6 +3,7 @@ package com.gelengeden.app.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,6 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -54,6 +56,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gelengeden.app.R
 import com.gelengeden.app.data.AuthManager
+import com.gelengeden.app.data.AuthManager.LoginMethod
+import com.gelengeden.app.ui.components.PatternGrid
 import com.gelengeden.app.ui.viewmodel.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,7 +68,9 @@ fun SettingsScreen(
     onBankSmsClick: () -> Unit,
     onLoggedOut: () -> Unit
 ) {
+    val authState by authViewModel.uiState.collectAsStateWithLifecycle()
     val changeState by authViewModel.changePasswordState.collectAsStateWithLifecycle()
+    val patternState by authViewModel.patternSettingsState.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -74,8 +80,11 @@ fun SettingsScreen(
     var currentVisible by remember { mutableStateOf(false) }
     var newVisible by remember { mutableStateOf(false) }
     var confirmVisible by remember { mutableStateOf(false) }
+    var newPattern by remember { mutableStateOf<List<Int>>(emptyList()) }
+    var confirmPattern by remember { mutableStateOf<List<Int>>(emptyList()) }
 
     val successMessage = stringResource(R.string.settings_password_changed)
+    val patternSuccessMessage = stringResource(R.string.settings_pattern_saved)
     LaunchedEffect(changeState.success) {
         if (changeState.success) {
             currentPassword = ""
@@ -90,6 +99,16 @@ fun SettingsScreen(
     }
 
     val errorText = authErrorMessage(changeState.errorMessageKey)
+    val patternErrorText = authErrorMessage(patternState.errorMessageKey)
+
+    LaunchedEffect(patternState.success) {
+        if (patternState.success) {
+            newPattern = emptyList()
+            confirmPattern = emptyList()
+            snackbarHostState.showSnackbar(patternSuccessMessage)
+            authViewModel.clearPatternFeedback()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -243,6 +262,147 @@ fun SettingsScreen(
                                 )
                             } else {
                                 Text(stringResource(R.string.settings_save_password))
+                            }
+                        }
+                    }
+                }
+            }
+
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = stringResource(R.string.settings_login_method_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = stringResource(R.string.settings_login_method_body),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(14.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            if (authState.loginMethod == LoginMethod.PASSWORD) {
+                                Button(onClick = {}, enabled = false) {
+                                    Text(stringResource(R.string.settings_login_method_password))
+                                }
+                            } else {
+                                OutlinedButton(onClick = { authViewModel.selectLoginMethod(LoginMethod.PASSWORD) }) {
+                                    Text(stringResource(R.string.settings_login_method_password))
+                                }
+                            }
+                            if (authState.loginMethod == LoginMethod.PATTERN) {
+                                Button(onClick = {}, enabled = false) {
+                                    Text(stringResource(R.string.settings_login_method_pattern))
+                                }
+                            } else {
+                                OutlinedButton(
+                                    onClick = { authViewModel.selectLoginMethod(LoginMethod.PATTERN) },
+                                    enabled = authState.isPatternSet
+                                ) {
+                                    Text(stringResource(R.string.settings_login_method_pattern))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = stringResource(R.string.settings_pattern_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = stringResource(R.string.settings_pattern_body),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = stringResource(R.string.settings_pattern_first),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                        PatternGrid(
+                            selectedNodes = newPattern,
+                            onNodeTapped = { node ->
+                                if (node !in newPattern && !patternState.isBusy) {
+                                    newPattern = newPattern + node
+                                    if (patternState.errorMessageKey != null) authViewModel.clearPatternFeedback()
+                                }
+                            },
+                            enabled = !patternState.isBusy,
+                            activeColor = MaterialTheme.colorScheme.primary,
+                            inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            contentDescription = stringResource(R.string.settings_pattern_first)
+                        )
+                        TextButton(
+                            onClick = { newPattern = emptyList() },
+                            enabled = newPattern.isNotEmpty() && !patternState.isBusy
+                        ) { Text(stringResource(R.string.pattern_clear)) }
+                        Text(
+                            text = stringResource(R.string.settings_pattern_confirm),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                        PatternGrid(
+                            selectedNodes = confirmPattern,
+                            onNodeTapped = { node ->
+                                if (node !in confirmPattern && !patternState.isBusy) {
+                                    confirmPattern = confirmPattern + node
+                                    if (patternState.errorMessageKey != null) authViewModel.clearPatternFeedback()
+                                }
+                            },
+                            enabled = !patternState.isBusy,
+                            activeColor = MaterialTheme.colorScheme.primary,
+                            inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            contentDescription = stringResource(R.string.settings_pattern_confirm)
+                        )
+                        TextButton(
+                            onClick = { confirmPattern = emptyList() },
+                            enabled = confirmPattern.isNotEmpty() && !patternState.isBusy
+                        ) { Text(stringResource(R.string.pattern_clear)) }
+                        patternErrorText?.let {
+                            Text(
+                                text = it,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Button(
+                            onClick = { authViewModel.savePattern(newPattern, confirmPattern) },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !patternState.isBusy,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            if (patternState.isBusy) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.height(22.dp),
+                                    strokeWidth = 2.dp,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                            } else {
+                                Text(stringResource(R.string.settings_pattern_save))
                             }
                         }
                     }

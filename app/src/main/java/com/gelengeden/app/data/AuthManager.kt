@@ -7,15 +7,26 @@ import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 
 /**
- * Local app-lock password stored as a salted PBKDF2 hash in SharedPreferences.
- * No network or account is involved — password only protects access on this device.
+ * Local app-lock credentials stored as salted PBKDF2 hashes in SharedPreferences.
+ * The password remains available as a recovery method when an optional pattern is enabled.
  */
 class AuthManager(context: Context) {
+
+    enum class LoginMethod { PASSWORD, PATTERN }
 
     private val prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     fun isPasswordSet(): Boolean =
-        prefs.contains(KEY_HASH) && prefs.contains(KEY_SALT)
+        prefs.contains(KEY_PASSWORD_HASH) && prefs.contains(KEY_PASSWORD_SALT)
+
+    fun isPatternSet(): Boolean =
+        prefs.contains(KEY_PATTERN_HASH) && prefs.contains(KEY_PATTERN_SALT)
+
+    fun loginMethod(): LoginMethod = runCatching {
+        LoginMethod.valueOf(prefs.getString(KEY_LOGIN_METHOD, LoginMethod.PASSWORD.name).orEmpty())
+    }.getOrDefault(LoginMethod.PASSWORD).let { method ->
+        if (method == LoginMethod.PATTERN && !isPatternSet()) LoginMethod.PASSWORD else method
+    }
 
     /**
      * Sets the initial password. Fails if one is already set — use [changePassword] instead.
@@ -28,17 +39,34 @@ class AuthManager(context: Context) {
         if (isPasswordSet()) {
             return Result.failure(IllegalStateException(ERROR_ALREADY_SET))
         }
-        persistPassword(trimmed)
+        persistCredential(trimmed, KEY_PASSWORD_SALT, KEY_PASSWORD_HASH)
         return Result.success(Unit)
     }
 
-    fun verifyPassword(password: String): Boolean {
-        if (!isPasswordSet()) return false
-        val storedHash = prefs.getString(KEY_HASH, null) ?: return false
-        val saltB64 = prefs.getString(KEY_SALT, null) ?: return false
-        val salt = Base64.decode(saltB64, Base64.NO_WRAP)
-        val candidate = hashPassword(password.trim(), salt)
-        return constantTimeEquals(storedHash, candidate)
+    fun verifyPassword(password: String): Boolean =
+        verifyCredential(password.trim(), KEY_PASSWORD_SALT, KEY_PASSWORD_HASH)
+
+    /**
+     * Creates or replaces the optional 3×3 pattern. The raw node sequence is never stored.
+     */
+    fun setPattern(nodes: List<Int>): Result<Unit> {
+        val canonical = PatternCredential.canonicalize(nodes)
+            ?: return Result.failure(IllegalArgumentException(ERROR_PATTERN_TOO_SHORT))
+        persistCredential(canonical, KEY_PATTERN_SALT, KEY_PATTERN_HASH)
+        return Result.success(Unit)
+    }
+
+    fun verifyPattern(nodes: List<Int>): Boolean {
+        val canonical = PatternCredential.canonicalize(nodes) ?: return false
+        return verifyCredential(canonical, KEY_PATTERN_SALT, KEY_PATTERN_HASH)
+    }
+
+    fun selectLoginMethod(method: LoginMethod): Result<Unit> {
+        if (method == LoginMethod.PATTERN && !isPatternSet()) {
+            return Result.failure(IllegalStateException(ERROR_PATTERN_NOT_SET))
+        }
+        prefs.edit().putString(KEY_LOGIN_METHOD, method.name).apply()
+        return Result.success(Unit)
     }
 
     fun changePassword(currentPassword: String, newPassword: String): Result<Unit> {
@@ -55,22 +83,29 @@ class AuthManager(context: Context) {
         if (currentPassword.trim() == trimmedNew) {
             return Result.failure(IllegalArgumentException(ERROR_SAME_PASSWORD))
         }
-        persistPassword(trimmedNew)
+        persistCredential(trimmedNew, KEY_PASSWORD_SALT, KEY_PASSWORD_HASH)
         return Result.success(Unit)
     }
 
-    private fun persistPassword(password: String) {
+    private fun persistCredential(secret: String, saltKey: String, hashKey: String) {
         val salt = ByteArray(SALT_BYTES).also { SecureRandom().nextBytes(it) }
-        val hash = hashPassword(password, salt)
+        val hash = hashSecret(secret, salt)
         prefs.edit()
-            .putString(KEY_SALT, Base64.encodeToString(salt, Base64.NO_WRAP))
-            .putString(KEY_HASH, hash)
+            .putString(saltKey, Base64.encodeToString(salt, Base64.NO_WRAP))
+            .putString(hashKey, hash)
             .apply()
     }
 
-    private fun hashPassword(password: String, salt: ByteArray): String {
+    private fun verifyCredential(secret: String, saltKey: String, hashKey: String): Boolean {
+        val storedHash = prefs.getString(hashKey, null) ?: return false
+        val saltB64 = prefs.getString(saltKey, null) ?: return false
+        val salt = runCatching { Base64.decode(saltB64, Base64.NO_WRAP) }.getOrNull() ?: return false
+        return constantTimeEquals(storedHash, hashSecret(secret, salt))
+    }
+
+    private fun hashSecret(secret: String, salt: ByteArray): String {
         val spec = PBEKeySpec(
-            password.toCharArray(),
+            secret.toCharArray(),
             salt,
             PBKDF2_ITERATIONS,
             KEY_LENGTH_BITS
@@ -101,10 +136,15 @@ class AuthManager(context: Context) {
         const val ERROR_NOT_SET = "not_set"
         const val ERROR_WRONG_CURRENT = "wrong_current"
         const val ERROR_SAME_PASSWORD = "same_password"
+        const val ERROR_PATTERN_TOO_SHORT = "pattern_too_short"
+        const val ERROR_PATTERN_NOT_SET = "pattern_not_set"
 
         private const val PREFS_NAME = "gelengeden_auth"
-        private const val KEY_HASH = "password_hash"
-        private const val KEY_SALT = "password_salt"
+        private const val KEY_PASSWORD_HASH = "password_hash"
+        private const val KEY_PASSWORD_SALT = "password_salt"
+        private const val KEY_PATTERN_HASH = "pattern_hash"
+        private const val KEY_PATTERN_SALT = "pattern_salt"
+        private const val KEY_LOGIN_METHOD = "login_method"
 
         private const val PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA256"
         private const val PBKDF2_ITERATIONS = 120_000
