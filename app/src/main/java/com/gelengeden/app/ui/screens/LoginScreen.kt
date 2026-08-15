@@ -145,11 +145,14 @@ fun LoginScreen(
             if (usesPatternLogin) {
                 PatternGrid(
                     selectedNodes = patternNodes,
-                    onNodeTapped = { node ->
-                        if (node !in patternNodes && !uiState.isBusy) {
-                            patternNodes = patternNodes + node
-                            if (uiState.errorMessageKey != null) authViewModel.clearError()
-                        }
+                    onPatternChanged = { patternNodes = it },
+                    onPatternStarted = {
+                        patternNodes = emptyList()
+                        if (uiState.errorMessageKey != null) authViewModel.clearError()
+                    },
+                    onPatternCompleted = { pattern ->
+                        patternNodes = pattern
+                        if (!uiState.isBusy) authViewModel.loginWithPattern(pattern)
                     },
                     enabled = !uiState.isBusy,
                     activeColor = MaterialTheme.colorScheme.primary,
@@ -172,26 +175,11 @@ fun LoginScreen(
                     )
                 }
 
-                Button(
-                    onClick = { authViewModel.loginWithPattern(patternNodes) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    enabled = !uiState.isBusy,
-                    shape = RoundedCornerShape(14.dp)
-                ) {
-                    if (uiState.isBusy) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.height(22.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    } else {
-                        Text(
-                            text = stringResource(R.string.login_sign_in),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
+                if (uiState.isBusy) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.height(28.dp),
+                        strokeWidth = 2.dp
+                    )
                 }
                 TextButton(
                     onClick = { usePasswordFallback = true },

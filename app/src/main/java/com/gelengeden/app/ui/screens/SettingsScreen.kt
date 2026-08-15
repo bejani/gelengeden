@@ -57,8 +57,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gelengeden.app.R
 import com.gelengeden.app.data.AuthManager
 import com.gelengeden.app.data.AuthManager.LoginMethod
+import com.gelengeden.app.data.PatternCredential
 import com.gelengeden.app.ui.components.PatternGrid
 import com.gelengeden.app.ui.viewmodel.AuthViewModel
+
+private enum class PatternSetupStep {
+    IDLE,
+    CREATE,
+    CONFIRM
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,6 +89,8 @@ fun SettingsScreen(
     var confirmVisible by remember { mutableStateOf(false) }
     var newPattern by remember { mutableStateOf<List<Int>>(emptyList()) }
     var confirmPattern by remember { mutableStateOf<List<Int>>(emptyList()) }
+    var patternSetupStep by remember { mutableStateOf(PatternSetupStep.IDLE) }
+    var localPatternErrorKey by remember { mutableStateOf<String?>(null) }
 
     val successMessage = stringResource(R.string.settings_password_changed)
     val patternSuccessMessage = stringResource(R.string.settings_pattern_saved)
@@ -99,12 +108,14 @@ fun SettingsScreen(
     }
 
     val errorText = authErrorMessage(changeState.errorMessageKey)
-    val patternErrorText = authErrorMessage(patternState.errorMessageKey)
+    val patternErrorText = authErrorMessage(localPatternErrorKey ?: patternState.errorMessageKey)
 
     LaunchedEffect(patternState.success) {
         if (patternState.success) {
             newPattern = emptyList()
             confirmPattern = emptyList()
+            patternSetupStep = PatternSetupStep.IDLE
+            localPatternErrorKey = null
             snackbarHostState.showSnackbar(patternSuccessMessage)
             authViewModel.clearPatternFeedback()
         }
@@ -339,48 +350,97 @@ fun SettingsScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = stringResource(R.string.settings_pattern_first),
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                        PatternGrid(
-                            selectedNodes = newPattern,
-                            onNodeTapped = { node ->
-                                if (node !in newPattern && !patternState.isBusy) {
-                                    newPattern = newPattern + node
-                                    if (patternState.errorMessageKey != null) authViewModel.clearPatternFeedback()
+
+                        when (patternSetupStep) {
+                            PatternSetupStep.IDLE -> {
+                                Button(
+                                    onClick = {
+                                        newPattern = emptyList()
+                                        confirmPattern = emptyList()
+                                        localPatternErrorKey = null
+                                        authViewModel.clearPatternFeedback()
+                                        patternSetupStep = PatternSetupStep.CREATE
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    enabled = !patternState.isBusy,
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Text(stringResource(R.string.settings_pattern_define))
                                 }
-                            },
-                            enabled = !patternState.isBusy,
-                            activeColor = MaterialTheme.colorScheme.primary,
-                            inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            contentDescription = stringResource(R.string.settings_pattern_first)
-                        )
-                        TextButton(
-                            onClick = { newPattern = emptyList() },
-                            enabled = newPattern.isNotEmpty() && !patternState.isBusy
-                        ) { Text(stringResource(R.string.pattern_clear)) }
-                        Text(
-                            text = stringResource(R.string.settings_pattern_confirm),
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                        PatternGrid(
-                            selectedNodes = confirmPattern,
-                            onNodeTapped = { node ->
-                                if (node !in confirmPattern && !patternState.isBusy) {
-                                    confirmPattern = confirmPattern + node
-                                    if (patternState.errorMessageKey != null) authViewModel.clearPatternFeedback()
-                                }
-                            },
-                            enabled = !patternState.isBusy,
-                            activeColor = MaterialTheme.colorScheme.primary,
-                            inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            contentDescription = stringResource(R.string.settings_pattern_confirm)
-                        )
-                        TextButton(
-                            onClick = { confirmPattern = emptyList() },
-                            enabled = confirmPattern.isNotEmpty() && !patternState.isBusy
-                        ) { Text(stringResource(R.string.pattern_clear)) }
+                            }
+
+                            PatternSetupStep.CREATE -> {
+                                Text(
+                                    text = stringResource(R.string.settings_pattern_first),
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                                PatternGrid(
+                                    selectedNodes = newPattern,
+                                    onPatternChanged = { newPattern = it },
+                                    onPatternStarted = {
+                                        newPattern = emptyList()
+                                        localPatternErrorKey = null
+                                        authViewModel.clearPatternFeedback()
+                                    },
+                                    onPatternCompleted = { pattern ->
+                                        newPattern = pattern
+                                        if (PatternCredential.canonicalize(pattern) == null) {
+                                            localPatternErrorKey = AuthManager.ERROR_PATTERN_TOO_SHORT
+                                        } else {
+                                            confirmPattern = emptyList()
+                                            patternSetupStep = PatternSetupStep.CONFIRM
+                                        }
+                                    },
+                                    enabled = !patternState.isBusy,
+                                    activeColor = MaterialTheme.colorScheme.primary,
+                                    inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    contentDescription = stringResource(R.string.settings_pattern_first)
+                                )
+                                TextButton(
+                                    onClick = { newPattern = emptyList() },
+                                    enabled = newPattern.isNotEmpty() && !patternState.isBusy
+                                ) { Text(stringResource(R.string.pattern_clear)) }
+                            }
+
+                            PatternSetupStep.CONFIRM -> {
+                                Text(
+                                    text = stringResource(R.string.settings_pattern_confirm),
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                                PatternGrid(
+                                    selectedNodes = confirmPattern,
+                                    onPatternChanged = { confirmPattern = it },
+                                    onPatternStarted = {
+                                        confirmPattern = emptyList()
+                                        localPatternErrorKey = null
+                                        authViewModel.clearPatternFeedback()
+                                    },
+                                    onPatternCompleted = { pattern ->
+                                        confirmPattern = pattern
+                                        val original = PatternCredential.canonicalize(newPattern)
+                                        val confirmation = PatternCredential.canonicalize(pattern)
+                                        when {
+                                            original == null || confirmation == null -> {
+                                                localPatternErrorKey = AuthManager.ERROR_PATTERN_TOO_SHORT
+                                            }
+                                            original != confirmation -> {
+                                                localPatternErrorKey = AuthViewModel.ERROR_MISMATCH
+                                            }
+                                            else -> authViewModel.savePattern(newPattern, pattern)
+                                        }
+                                    },
+                                    enabled = !patternState.isBusy,
+                                    activeColor = MaterialTheme.colorScheme.primary,
+                                    inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    contentDescription = stringResource(R.string.settings_pattern_confirm)
+                                )
+                                TextButton(
+                                    onClick = { confirmPattern = emptyList() },
+                                    enabled = confirmPattern.isNotEmpty() && !patternState.isBusy
+                                ) { Text(stringResource(R.string.pattern_clear)) }
+                            }
+                        }
+
                         patternErrorText?.let {
                             Text(
                                 text = it,
@@ -388,22 +448,12 @@ fun SettingsScreen(
                                 color = MaterialTheme.colorScheme.error
                             )
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Button(
-                            onClick = { authViewModel.savePattern(newPattern, confirmPattern) },
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = !patternState.isBusy,
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            if (patternState.isBusy) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.height(22.dp),
-                                    strokeWidth = 2.dp,
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
-                            } else {
-                                Text(stringResource(R.string.settings_pattern_save))
-                            }
+                        if (patternSetupStep != PatternSetupStep.IDLE && patternState.isBusy) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            CircularProgressIndicator(
+                                modifier = Modifier.height(22.dp),
+                                strokeWidth = 2.dp
+                            )
                         }
                     }
                 }

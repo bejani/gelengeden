@@ -25,7 +25,9 @@ import kotlin.math.min
 @Composable
 fun PatternGrid(
     selectedNodes: List<Int>,
-    onNodeTapped: (Int) -> Unit,
+    onPatternChanged: (List<Int>) -> Unit,
+    onPatternStarted: (() -> Unit)? = null,
+    onPatternCompleted: ((List<Int>) -> Unit)? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     activeColor: Color,
@@ -41,17 +43,28 @@ fun PatternGrid(
             .semantics { this.contentDescription = contentDescription }
             .pointerInput(enabled) {
                 if (enabled) {
+                    var drawnNodes = emptyList<Int>()
                     fun addNodeAt(offset: Offset) {
                         val column = (offset.x / (size.width / 3f)).toInt().coerceIn(0, 2)
                         val row = (offset.y / (size.height / 3f)).toInt().coerceIn(0, 2)
-                        onNodeTapped(row * 3 + column)
+                        val node = row * 3 + column
+                        if (node !in drawnNodes) {
+                            drawnNodes = drawnNodes + node
+                            onPatternChanged(drawnNodes)
+                        }
                     }
                     detectDragGestures(
-                        onDragStart = { offset -> addNodeAt(offset) },
+                        onDragStart = { offset ->
+                            drawnNodes = emptyList()
+                            onPatternStarted?.invoke()
+                            addNodeAt(offset)
+                        },
                         onDrag = { change, _ ->
                             change.consume()
                             addNodeAt(change.position)
-                        }
+                        },
+                        onDragEnd = { onPatternCompleted?.invoke(drawnNodes) },
+                        onDragCancel = { drawnNodes = emptyList() }
                     )
                 }
             }
