@@ -42,7 +42,7 @@ import com.gelengeden.app.data.Transaction
 import com.gelengeden.app.data.TransactionType
 import com.gelengeden.app.ui.theme.ExpenseRed
 import com.gelengeden.app.ui.theme.IncomeGreen
-import com.gelengeden.app.ui.util.formatShortDate
+import com.gelengeden.app.ui.util.formatShortPersianDate
 import com.gelengeden.app.ui.util.formatMoney
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -158,7 +158,7 @@ fun TransactionItem(
                         textAlign = TextAlign.End
                     )
                     Text(
-                        text = formatShortDate(transaction.dateMillis),
+                        text = formatShortPersianDate(transaction.dateMillis),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,

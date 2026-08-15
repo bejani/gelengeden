@@ -40,6 +40,12 @@ fun formatPersianDate(millis: Long): String {
     return "${toPersianDigits(date.day)} ${PersianMonthNames[date.month]} ${toPersianDigits(date.year)}"
 }
 
+/** Compact Solar Hijri label used where the year is unnecessary, such as transaction cards. */
+fun formatShortPersianDate(millis: Long): String {
+    val date = persianDateFromMillis(millis)
+    return "${toPersianDigits(date.day)} ${PersianMonthNames[date.month]}"
+}
+
 fun formatPersianMonthYear(year: Int, month: Int): String =
     "${PersianMonthNames[month]} ${toPersianDigits(year)}"
 
