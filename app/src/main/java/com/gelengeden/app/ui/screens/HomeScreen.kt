@@ -469,7 +469,7 @@ fun HomeScreen(
                 } else {
                     items(
                         items = uiState.transactions,
-                        key = { it.id }
+                        key = { transaction -> "${uiState.listGeneration}:${transaction.id}" }
                     ) { transaction ->
                         TransactionItem(
                             transaction = transaction,

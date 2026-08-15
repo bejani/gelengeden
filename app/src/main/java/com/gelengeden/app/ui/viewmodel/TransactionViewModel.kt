@@ -42,7 +42,9 @@ data class DashboardUiState(
     val balance: Double = 0.0,
     val filter: FilterType = FilterType.ALL,
     val searchQuery: String = "",
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    /** Changes after a full restore so every home-list row receives fresh Compose state. */
+    val listGeneration: Int = 0
 )
 
 private data class ReportSelection(
@@ -63,8 +65,9 @@ class TransactionViewModel(
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     private val _reportSelection = MutableStateFlow(ReportSelection())
+    private val _homeListGeneration = MutableStateFlow(0)
 
-    val uiState: StateFlow<DashboardUiState> = combine(
+    private val dashboardState = combine(
         repository.getAllTransactions(),
         repository.getTotalIncome(),
         repository.getTotalExpense(),
@@ -92,11 +95,17 @@ class TransactionViewModel(
             searchQuery = query,
             isLoading = false
         )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = DashboardUiState()
-    )
+    }
+
+    val uiState: StateFlow<DashboardUiState> = dashboardState
+        .combine(_homeListGeneration) { dashboard, generation ->
+            dashboard.copy(listGeneration = generation)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = DashboardUiState()
+        )
 
     val reportState: StateFlow<ReportUiState> = combine(
         repository.getAllTransactions(),
@@ -352,8 +361,16 @@ class TransactionViewModel(
     }
 
     /** Replaces all local data with the given backup JSON. */
-    suspend fun restoreFromBackupJson(json: String): Result<BackupSummary> = withBackupLock {
-        repository.restoreFromJson(json).getOrThrow()
+    suspend fun restoreFromBackupJson(json: String): Result<BackupSummary> {
+        val result = withBackupLock {
+            repository.restoreFromJson(json).getOrThrow()
+        }
+        if (result.isSuccess) {
+            // Restoring deletes and reinserts every row. Bump the generation so no remembered
+            // swipe state is reused for rows that have just received new database identities.
+            _homeListGeneration.value += 1
+        }
+        return result
     }
 
     suspend fun currentDataCounts(): Pair<Int, Int> = repository.currentCounts()
