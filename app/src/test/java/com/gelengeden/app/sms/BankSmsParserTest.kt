@@ -26,6 +26,22 @@ class BankSmsParserTest {
     }
 
     @Test
+    fun `parses Bank Resalat signed withdrawal without treating balance as income`() {
+        val parsed = BankSmsParser.parse(
+            """
+            10.1651829.1
+            -1,100,000
+            05/24_14:12
+            مانده: 1,645,473
+            """.trimIndent()
+        )
+
+        requireNotNull(parsed)
+        assertEquals(TransactionType.EXPENSE, parsed.type)
+        assertEquals(1_100_000.0, parsed.amount, 0.0)
+    }
+
+    @Test
     fun `parses Persian digit income message`() {
         val parsed = BankSmsParser.parse("واریز: ۱۲٬۵۰۰")
 

@@ -18,14 +18,36 @@ object BankSmsParser {
         pattern = """(?im)(برداشت|واریز|واريز|بستانکار|بستانكار)\s*[:：-]?\s*([0-9۰-۹٠-٩,٬\s]+)"""
     )
 
+    /**
+     * Some bank messages omit a transaction label and put the signed amount on its own line.
+     * Anchoring to a whole line avoids treating a positive "مانده" (balance) as an income.
+     */
+    private val signedAmountLinePattern = Regex(
+        pattern = """(?m)^\s*([+-])\s*([0-9۰-۹٠-٩,٬\s]+)\s*$"""
+    )
+
     fun parse(body: String): ParsedBankSms? {
-        val match = transactionPattern.find(body) ?: return null
-        val type = when (match.groupValues[1]) {
-            "برداشت" -> TransactionType.EXPENSE
-            "واریز", "واريز", "بستانکار", "بستانكار" -> TransactionType.INCOME
-            else -> return null
+        val match = transactionPattern.find(body)
+        if (match != null) {
+            val type = when (match.groupValues[1]) {
+                "برداشت" -> TransactionType.EXPENSE
+                "واریز", "واريز", "بستانکار", "بستانكار" -> TransactionType.INCOME
+                else -> return null
+            }
+            return parsedAmount(match.groupValues[2], type)
         }
-        val amountDigits = normalizeDigits(match.groupValues[2]).filter { it.isDigit() }
+
+        val signedMatch = signedAmountLinePattern.find(body) ?: return null
+        val type = if (signedMatch.groupValues[1] == "-") {
+            TransactionType.EXPENSE
+        } else {
+            TransactionType.INCOME
+        }
+        return parsedAmount(signedMatch.groupValues[2], type)
+    }
+
+    private fun parsedAmount(rawAmount: String, type: TransactionType): ParsedBankSms? {
+        val amountDigits = normalizeDigits(rawAmount).filter { it.isDigit() }
         val amount = amountDigits.toLongOrNull()?.toDouble()?.takeIf { it > 0.0 } ?: return null
         return ParsedBankSms(amount = amount, type = type)
     }
