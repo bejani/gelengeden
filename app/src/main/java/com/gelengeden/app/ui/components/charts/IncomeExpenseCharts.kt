@@ -36,12 +36,14 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.gelengeden.app.R
 import com.gelengeden.app.data.TransactionType
 import com.gelengeden.app.ui.report.CategoryTotal
 import com.gelengeden.app.ui.report.MonthlyPoint
@@ -83,12 +85,12 @@ fun ChartLegend(
     ) {
         when (typeFilter) {
             ReportTypeFilter.ALL -> {
-                LegendDot(color = IncomeGreen, label = "Income")
+                LegendDot(color = IncomeGreen, label = stringResource(R.string.income))
                 Spacer(modifier = Modifier.width(16.dp))
-                LegendDot(color = ExpenseRed, label = "Expense")
+                LegendDot(color = ExpenseRed, label = stringResource(R.string.expense))
             }
-            ReportTypeFilter.INCOME -> LegendDot(color = IncomeGreen, label = "Income")
-            ReportTypeFilter.EXPENSE -> LegendDot(color = ExpenseRed, label = "Expense")
+            ReportTypeFilter.INCOME -> LegendDot(color = IncomeGreen, label = stringResource(R.string.income))
+            ReportTypeFilter.EXPENSE -> LegendDot(color = ExpenseRed, label = stringResource(R.string.expense))
         }
     }
 }
@@ -152,15 +154,15 @@ fun MonthlyBarChart(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Monthly comparison",
+                text = stringResource(R.string.chart_monthly_comparison),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
                 text = when (typeFilter) {
-                    ReportTypeFilter.ALL -> "Income vs expense by month"
-                    ReportTypeFilter.INCOME -> "Income by month"
-                    ReportTypeFilter.EXPENSE -> "Expense by month"
+                    ReportTypeFilter.ALL -> stringResource(R.string.chart_income_vs_expense)
+                    ReportTypeFilter.INCOME -> stringResource(R.string.chart_income_by_month)
+                    ReportTypeFilter.EXPENSE -> stringResource(R.string.chart_expense_by_month)
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -304,11 +306,11 @@ fun MonthlyBarChart(
                     Text(
                         text = when (typeFilter) {
                             ReportTypeFilter.ALL ->
-                                "Peak: ${peak.label} · in ${formatMoney(peak.income)} · out ${formatMoney(peak.expense)}"
+                                stringResource(R.string.chart_peak_all, peak.label, formatMoney(peak.income), formatMoney(peak.expense))
                             ReportTypeFilter.INCOME ->
-                                "Peak: ${peak.label} · ${formatMoney(peak.income)}"
+                                stringResource(R.string.chart_peak_single, peak.label, formatMoney(peak.income))
                             ReportTypeFilter.EXPENSE ->
-                                "Peak: ${peak.label} · ${formatMoney(peak.expense)}"
+                                stringResource(R.string.chart_peak_single, peak.label, formatMoney(peak.expense))
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -361,15 +363,15 @@ fun MonthlyLineChart(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Trend over time",
+                text = stringResource(R.string.chart_trend_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
                 text = when (typeFilter) {
-                    ReportTypeFilter.ALL -> "Income and expense trends"
-                    ReportTypeFilter.INCOME -> "Income trend"
-                    ReportTypeFilter.EXPENSE -> "Expense trend"
+                    ReportTypeFilter.ALL -> stringResource(R.string.chart_trend_all)
+                    ReportTypeFilter.INCOME -> stringResource(R.string.chart_trend_income)
+                    ReportTypeFilter.EXPENSE -> stringResource(R.string.chart_trend_expense)
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -523,13 +525,14 @@ fun CategoryPieChart(
     modifier: Modifier = Modifier
 ) {
     val items = categories.take(8)
+    val otherLabel = stringResource(R.string.other)
     val otherAmount = categories.drop(8).sumOf { it.amount }
     val slices = buildList {
         addAll(items)
         if (otherAmount > 0) {
             add(
                 CategoryTotal(
-                    name = "Other",
+                    name = otherLabel,
                     amount = otherAmount,
                     type = items.firstOrNull()?.type ?: TransactionType.EXPENSE,
                     percent = 0f,
@@ -549,15 +552,15 @@ fun CategoryPieChart(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Category share",
+                text = stringResource(R.string.chart_category_share),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
                 text = when (typeFilter) {
-                    ReportTypeFilter.ALL -> "Where money goes and comes from"
-                    ReportTypeFilter.INCOME -> "Income sources"
-                    ReportTypeFilter.EXPENSE -> "Spending by category"
+                    ReportTypeFilter.ALL -> stringResource(R.string.chart_category_all)
+                    ReportTypeFilter.INCOME -> stringResource(R.string.chart_category_income)
+                    ReportTypeFilter.EXPENSE -> stringResource(R.string.chart_category_expense)
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -565,7 +568,7 @@ fun CategoryPieChart(
             Spacer(modifier = Modifier.height(12.dp))
 
             if (withPercent.isEmpty()) {
-                EmptyChartPlaceholder(message = "No category data for this period.")
+                EmptyChartPlaceholder(message = stringResource(R.string.chart_no_category_data))
             } else {
                 Box(
                     modifier = Modifier
@@ -620,7 +623,7 @@ fun CategoryPieChart(
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "${withPercent.size} cats",
+                                text = stringResource(R.string.chart_cats_count, withPercent.size),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -690,12 +693,12 @@ fun BalanceSparkline(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Net balance trend",
+                text = stringResource(R.string.chart_balance_trend),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
-                text = "Income minus expense each month",
+                text = stringResource(R.string.chart_balance_subtitle),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -764,12 +767,12 @@ fun BalanceSparkline(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Latest: ${formatMoney(last)}",
+                        text = stringResource(R.string.chart_latest, formatMoney(last)),
                         style = MaterialTheme.typography.bodySmall,
                         color = if (last >= 0) IncomeGreen else ExpenseRed
                     )
                     Text(
-                        text = "Window net: ${formatMoney(sum)}",
+                        text = stringResource(R.string.chart_window_net, formatMoney(sum)),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -807,9 +810,8 @@ private fun YAxisLabels(
 }
 
 @Composable
-private fun EmptyChartPlaceholder(
-    message: String = "No data for this period yet.\nAdd some transactions to see charts."
-) {
+private fun EmptyChartPlaceholder(message: String? = null) {
+    val displayMessage = message ?: stringResource(R.string.chart_empty)
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -817,7 +819,7 @@ private fun EmptyChartPlaceholder(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = message,
+            text = displayMessage,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center

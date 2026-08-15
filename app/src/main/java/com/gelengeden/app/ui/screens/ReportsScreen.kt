@@ -42,10 +42,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gelengeden.app.R
 import com.gelengeden.app.data.TransactionType
 import com.gelengeden.app.ui.components.PersianMonthPickerDialog
 import com.gelengeden.app.ui.components.charts.BalanceSparkline
@@ -112,12 +114,12 @@ fun ReportsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Reports") },
+                title = { Text(stringResource(R.string.reports)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 }
@@ -133,7 +135,7 @@ fun ReportsScreen(
         ) {
             // ── Period ──────────────────────────────────────────────
             item {
-                SectionTitle("Period")
+                SectionTitle(stringResource(R.string.period))
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     modifier = Modifier
@@ -141,22 +143,22 @@ fun ReportsScreen(
                         .horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    PeriodChip("This month", ReportPeriodPreset.THIS_MONTH, report.preset) {
+                    PeriodChip(stringResource(R.string.this_month), ReportPeriodPreset.THIS_MONTH, report.preset) {
                         viewModel.setReportPreset(it)
                     }
-                    PeriodChip("Last month", ReportPeriodPreset.LAST_MONTH, report.preset) {
+                    PeriodChip(stringResource(R.string.last_month), ReportPeriodPreset.LAST_MONTH, report.preset) {
                         viewModel.setReportPreset(it)
                     }
-                    PeriodChip("3 months", ReportPeriodPreset.LAST_3_MONTHS, report.preset) {
+                    PeriodChip(stringResource(R.string.last_3_months), ReportPeriodPreset.LAST_3_MONTHS, report.preset) {
                         viewModel.setReportPreset(it)
                     }
-                    PeriodChip("6 months", ReportPeriodPreset.LAST_6_MONTHS, report.preset) {
+                    PeriodChip(stringResource(R.string.last_6_months), ReportPeriodPreset.LAST_6_MONTHS, report.preset) {
                         viewModel.setReportPreset(it)
                     }
-                    PeriodChip("This year", ReportPeriodPreset.THIS_YEAR, report.preset) {
+                    PeriodChip(stringResource(R.string.this_year), ReportPeriodPreset.THIS_YEAR, report.preset) {
                         viewModel.setReportPreset(it)
                     }
-                    PeriodChip("Custom", ReportPeriodPreset.CUSTOM, report.preset) {
+                    PeriodChip(stringResource(R.string.custom), ReportPeriodPreset.CUSTOM, report.preset) {
                         viewModel.setReportPreset(it)
                     }
                 }
@@ -171,24 +173,28 @@ fun ReportsScreen(
                     TextButton(onClick = { showMonthPicker = true }) {
                         Icon(Icons.Default.CalendarMonth, contentDescription = null)
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Pick month")
+                        Text(stringResource(R.string.pick_month))
                     }
                     if (report.preset == ReportPeriodPreset.CUSTOM) {
                         TextButton(onClick = { openStartDatePicker() }) {
                             Icon(Icons.Default.DateRange, contentDescription = null)
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("From")
+                            Text(stringResource(R.string.from))
                         }
                         TextButton(onClick = { openEndDatePicker() }) {
                             Icon(Icons.Default.DateRange, contentDescription = null)
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("To")
+                            Text(stringResource(R.string.to))
                         }
                     }
                 }
                 Text(
-                    text = "${formatPersianDate(report.range.startMillis)}  تا  ${formatPersianDate(report.range.endMillis)}" +
-                        "  ·  ${report.range.dayCount} days",
+                    text = stringResource(
+                        R.string.date_range_days,
+                        formatPersianDate(report.range.startMillis),
+                        formatPersianDate(report.range.endMillis),
+                        report.range.dayCount
+                    ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -196,23 +202,23 @@ fun ReportsScreen(
 
             // ── Type filter ─────────────────────────────────────────
             item {
-                SectionTitle("Show")
+                SectionTitle(stringResource(R.string.show))
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(
                         selected = report.typeFilter == ReportTypeFilter.ALL,
                         onClick = { viewModel.setReportTypeFilter(ReportTypeFilter.ALL) },
-                        label = { Text("All") }
+                        label = { Text(stringResource(R.string.all)) }
                     )
                     FilterChip(
                         selected = report.typeFilter == ReportTypeFilter.INCOME,
                         onClick = { viewModel.setReportTypeFilter(ReportTypeFilter.INCOME) },
-                        label = { Text("Income") }
+                        label = { Text(stringResource(R.string.income)) }
                     )
                     FilterChip(
                         selected = report.typeFilter == ReportTypeFilter.EXPENSE,
                         onClick = { viewModel.setReportTypeFilter(ReportTypeFilter.EXPENSE) },
-                        label = { Text("Expense") }
+                        label = { Text(stringResource(R.string.expense)) }
                     )
                 }
             }
@@ -231,7 +237,7 @@ fun ReportsScreen(
             // ── Insights ────────────────────────────────────────────
             if (report.insights.isNotEmpty()) {
                 item {
-                    SectionTitle("Insights")
+                    SectionTitle(stringResource(R.string.insights))
                     Spacer(modifier = Modifier.height(8.dp))
                     InsightsRow(insights = report.insights)
                 }
@@ -239,7 +245,7 @@ fun ReportsScreen(
 
             // ── Category pie ────────────────────────────────────────
             item {
-                SectionTitle("Categories")
+                SectionTitle(stringResource(R.string.categories_section))
             }
 
             item {
@@ -259,7 +265,7 @@ fun ReportsScreen(
                         )
                     ) {
                         Text(
-                            text = "No transactions in this period.",
+                            text = stringResource(R.string.no_transactions_in_period),
                             modifier = Modifier.padding(16.dp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -268,7 +274,7 @@ fun ReportsScreen(
             } else {
                 item {
                     Text(
-                        text = "Breakdown",
+                        text = stringResource(R.string.breakdown),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -289,27 +295,27 @@ fun ReportsScreen(
             // ── Chart window ────────────────────────────────────────
             item {
                 Spacer(modifier = Modifier.height(4.dp))
-                SectionTitle("Monthly charts")
+                SectionTitle(stringResource(R.string.monthly_charts))
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(
                         selected = report.chartMonths == 3,
                         onClick = { viewModel.setChartMonths(3) },
-                        label = { Text("3 mo") }
+                        label = { Text(stringResource(R.string.months_3)) }
                     )
                     FilterChip(
                         selected = report.chartMonths == 6,
                         onClick = { viewModel.setChartMonths(6) },
-                        label = { Text("6 mo") }
+                        label = { Text(stringResource(R.string.months_6)) }
                     )
                     FilterChip(
                         selected = report.chartMonths == 12,
                         onClick = { viewModel.setChartMonths(12) },
-                        label = { Text("12 mo") }
+                        label = { Text(stringResource(R.string.months_12)) }
                     )
                 }
                 Text(
-                    text = "Charts always cover the last ${report.chartMonths} months (independent of period above).",
+                    text = stringResource(R.string.chart_window_hint, report.chartMonths),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 4.dp)
@@ -439,7 +445,7 @@ private fun PeriodSummaryCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Period summary",
+                text = stringResource(R.string.period_summary),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
             )
@@ -453,7 +459,7 @@ private fun PeriodSummaryCard(
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                     Text(
-                        text = "Net balance · $count transactions",
+                        text = stringResource(R.string.net_balance_transactions, count),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f)
                     )
@@ -464,7 +470,7 @@ private fun PeriodSummaryCard(
                     ) {
                         Column {
                             Text(
-                                "Income",
+                                stringResource(R.string.income),
                                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f)
                             )
                             Text(
@@ -475,7 +481,7 @@ private fun PeriodSummaryCard(
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
-                                "Expense",
+                                stringResource(R.string.expense),
                                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f)
                             )
                             Text(
@@ -494,7 +500,7 @@ private fun PeriodSummaryCard(
                         color = IncomeGreen
                     )
                     Text(
-                        text = "Total income · $count transactions",
+                        text = stringResource(R.string.total_income_transactions, count),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f)
                     )
@@ -507,7 +513,7 @@ private fun PeriodSummaryCard(
                         color = ExpenseRed
                     )
                     Text(
-                        text = "Total expense · $count transactions",
+                        text = stringResource(R.string.total_expense_transactions, count),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f)
                     )
@@ -525,6 +531,15 @@ private fun CategoryBreakdownRow(
 ) {
     val accent = if (item.type == TransactionType.INCOME) IncomeGreen else ExpenseRed
     val progress = (item.amount / maxAmount).toFloat().coerceIn(0f, 1f)
+    val transactionCount = stringResource(
+        if (item.transactionCount == 1) R.string.tx_count_one else R.string.tx_count_other,
+        item.transactionCount
+    )
+    val metadata = stringResource(
+        if (item.type == TransactionType.INCOME) R.string.income_percent_txs else R.string.expense_percent_txs,
+        formatPercent(item.percent.toDouble()),
+        transactionCount
+    )
 
     Card(
         modifier = Modifier
@@ -547,16 +562,7 @@ private fun CategoryBreakdownRow(
                         fontWeight = FontWeight.Medium
                     )
                     Text(
-                        text = buildString {
-                            append(if (item.type == TransactionType.INCOME) "Income" else "Expense")
-                            append(" · ")
-                            append(formatPercent(item.percent.toDouble()))
-                            if (item.transactionCount > 0) {
-                                append(" · ")
-                                append(item.transactionCount)
-                                append(if (item.transactionCount == 1) " tx" else " txs")
-                            }
-                        },
+                        text = metadata,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

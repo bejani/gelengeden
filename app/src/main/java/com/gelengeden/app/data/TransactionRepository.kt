@@ -61,10 +61,10 @@ class TransactionRepository(
     suspend fun addCategory(name: String, type: TransactionType): Result<Unit> {
         val trimmed = name.trim()
         if (trimmed.isEmpty()) {
-            return Result.failure(IllegalArgumentException("Category name cannot be empty"))
+            return Result.failure(IllegalArgumentException("نام دسته نمی‌تواند خالی باشد"))
         }
         if (categoryDao.countByNameAndType(trimmed, type) > 0) {
-            return Result.failure(IllegalArgumentException("That category already exists"))
+            return Result.failure(IllegalArgumentException("این دسته از قبل وجود دارد"))
         }
         val sortOrder = categoryDao.countByType(type)
         categoryDao.insert(
@@ -76,10 +76,10 @@ class TransactionRepository(
     suspend fun renameCategory(category: Category, newName: String): Result<Unit> {
         val trimmed = newName.trim()
         if (trimmed.isEmpty()) {
-            return Result.failure(IllegalArgumentException("Category name cannot be empty"))
+            return Result.failure(IllegalArgumentException("نام دسته نمی‌تواند خالی باشد"))
         }
         if (categoryDao.countByNameAndType(trimmed, category.type, category.id) > 0) {
-            return Result.failure(IllegalArgumentException("That category already exists"))
+            return Result.failure(IllegalArgumentException("این دسته از قبل وجود دارد"))
         }
         val oldName = category.name
         categoryDao.update(category.copy(name = trimmed))
@@ -93,13 +93,13 @@ class TransactionRepository(
         if (categoryDao.countByType(category.type) <= 1) {
             return Result.failure(
                 IllegalArgumentException(
-                    "Keep at least one ${category.type.name.lowercase()} category"
+                    "حداقل یک دسته از این نوع باید باقی بماند"
                 )
             )
         }
         val fallback = categoryDao.findFallbackName(category.type, category.id)
             ?: return Result.failure(
-                IllegalArgumentException("Could not find a fallback category")
+                IllegalArgumentException("دستهٔ جایگزین پیدا نشد")
             )
         categoryDao.reassignTransactions(category.name, fallback, category.type)
         categoryDao.delete(category)

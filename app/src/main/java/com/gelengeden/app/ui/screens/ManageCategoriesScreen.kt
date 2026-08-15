@@ -44,9 +44,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gelengeden.app.R
 import com.gelengeden.app.data.Category
 import com.gelengeden.app.data.TransactionType
 import com.gelengeden.app.ui.viewmodel.TransactionViewModel
@@ -80,12 +82,12 @@ fun ManageCategoriesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Categories") },
+                title = { Text(stringResource(R.string.categories)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 }
@@ -96,7 +98,7 @@ fun ManageCategoriesScreen(
                 onClick = { showAddDialog = true },
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add category")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_category))
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -108,7 +110,7 @@ fun ManageCategoriesScreen(
                 .padding(horizontal = 16.dp)
         ) {
             Text(
-                text = "Manage income and expense categories used when adding transactions.",
+                text = stringResource(R.string.categories_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -120,14 +122,14 @@ fun ManageCategoriesScreen(
                     onClick = { typeIndex = 0 },
                     shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
                 ) {
-                    Text("Income")
+                    Text(stringResource(R.string.income))
                 }
                 SegmentedButton(
                     selected = typeIndex == 1,
                     onClick = { typeIndex = 1 },
                     shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
                 ) {
-                    Text("Expense")
+                    Text(stringResource(R.string.expense))
                 }
             }
 
@@ -135,7 +137,7 @@ fun ManageCategoriesScreen(
 
             if (categories.isEmpty()) {
                 Text(
-                    text = "No categories yet. Tap + to add one.",
+                    text = stringResource(R.string.no_categories_yet),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 24.dp)
@@ -162,12 +164,12 @@ fun ManageCategoriesScreen(
     if (showAddDialog) {
         CategoryNameDialog(
             title = if (selectedType == TransactionType.INCOME) {
-                "Add income category"
+                stringResource(R.string.add_income_category)
             } else {
-                "Add expense category"
+                stringResource(R.string.add_expense_category)
             },
             initialName = "",
-            confirmLabel = "Add",
+            confirmLabel = stringResource(R.string.add),
             onDismiss = { showAddDialog = false },
             onConfirm = { name ->
                 viewModel.addCategory(name, selectedType)
@@ -178,9 +180,9 @@ fun ManageCategoriesScreen(
 
     editingCategory?.let { category ->
         CategoryNameDialog(
-            title = "Rename category",
+            title = stringResource(R.string.rename_category),
             initialName = category.name,
-            confirmLabel = "Save",
+            confirmLabel = stringResource(R.string.save),
             onDismiss = { editingCategory = null },
             onConfirm = { name ->
                 viewModel.renameCategory(category, name)
@@ -192,12 +194,9 @@ fun ManageCategoriesScreen(
     deletingCategory?.let { category ->
         AlertDialog(
             onDismissRequest = { deletingCategory = null },
-            title = { Text("Delete category?") },
+            title = { Text(stringResource(R.string.delete_category_title)) },
             text = {
-                Text(
-                    "\"${category.name}\" will be removed. " +
-                        "Transactions using it will move to another category of the same type."
-                )
+                Text(stringResource(R.string.delete_category_message, category.name))
             },
             confirmButton = {
                 TextButton(
@@ -206,12 +205,12 @@ fun ManageCategoriesScreen(
                         deletingCategory = null
                     }
                 ) {
-                    Text("Delete")
+                    Text(stringResource(R.string.delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { deletingCategory = null }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -250,7 +249,7 @@ private fun CategoryRow(
             IconButton(onClick = onEdit) {
                 Icon(
                     Icons.Default.Edit,
-                    contentDescription = "Rename ${category.name}"
+                    contentDescription = stringResource(R.string.rename_category_cd, category.name)
                 )
             }
             IconButton(
@@ -259,7 +258,7 @@ private fun CategoryRow(
             ) {
                 Icon(
                     Icons.Default.Delete,
-                    contentDescription = "Delete ${category.name}",
+                    contentDescription = stringResource(R.string.delete_category_cd, category.name),
                     tint = if (canDelete) {
                         MaterialTheme.colorScheme.error
                     } else {
@@ -281,6 +280,7 @@ private fun CategoryNameDialog(
 ) {
     var name by remember(initialName) { mutableStateOf(initialName) }
     var error by remember { mutableStateOf<String?>(null) }
+    val emptyNameError = stringResource(R.string.error_enter_name)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -293,7 +293,7 @@ private fun CategoryNameDialog(
                         name = it
                         error = null
                     },
-                    label = { Text("Name") },
+                    label = { Text(stringResource(R.string.name)) },
                     singleLine = true,
                     isError = error != null,
                     modifier = Modifier.fillMaxWidth()
@@ -312,7 +312,7 @@ private fun CategoryNameDialog(
             TextButton(
                 onClick = {
                     if (name.isBlank()) {
-                        error = "Enter a name"
+                        error = emptyNameError
                     } else {
                         onConfirm(name)
                     }
@@ -323,7 +323,7 @@ private fun CategoryNameDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

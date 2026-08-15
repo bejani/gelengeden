@@ -353,54 +353,54 @@ private fun buildInsights(
     when (typeFilter) {
         ReportTypeFilter.ALL -> {
             list += ReportInsight(
-                label = "Savings rate",
-                value = if (income > 0) String.format("%.0f%%", savingsRate * 100) else "—",
-                detail = if (income > 0) "of income kept" else "No income in period"
+                label = "نرخ پس‌انداز",
+                value = if (income > 0) String.format("%.0f٪", savingsRate * 100) else "—",
+                detail = if (income > 0) "از درآمد باقی‌مانده" else "در این بازه درآمدی نیست"
             )
             list += ReportInsight(
-                label = "Avg / day",
+                label = "میانگین روزانه",
                 value = formatShort(avgDailyExpense),
-                detail = "daily spending"
+                detail = "هزینهٔ روزانه"
             )
         }
         ReportTypeFilter.INCOME -> {
             list += ReportInsight(
-                label = "Avg / day",
+                label = "میانگین روزانه",
                 value = formatShort(avgDailyIncome),
-                detail = "daily income"
+                detail = "درآمد روزانه"
             )
             list += ReportInsight(
-                label = "Total",
+                label = "جمع",
                 value = formatShort(income),
-                detail = "$transactionCount entries"
+                detail = "$transactionCount تراکنش"
             )
         }
         ReportTypeFilter.EXPENSE -> {
             list += ReportInsight(
-                label = "Avg / day",
+                label = "میانگین روزانه",
                 value = formatShort(avgDailyExpense),
-                detail = "daily spending"
+                detail = "هزینهٔ روزانه"
             )
             list += ReportInsight(
-                label = "Total",
+                label = "جمع",
                 value = formatShort(expense),
-                detail = "$transactionCount entries"
+                detail = "$transactionCount تراکنش"
             )
         }
     }
 
     if (topCategory != null) {
         list += ReportInsight(
-            label = "Top category",
+            label = "پرتکرارترین دسته",
             value = topCategory.name,
             detail = formatShort(topCategory.amount)
         )
     }
 
     list += ReportInsight(
-        label = "Busiest month",
+        label = "پرتراکنش‌ترین ماه",
         value = busiestMonthLabel,
-        detail = "in chart window"
+        detail = "در بازهٔ نمودار"
     )
 
     return list
@@ -410,8 +410,8 @@ private fun formatShort(amount: Double): String {
     val abs = kotlin.math.abs(amount)
     val sign = if (amount < 0) "-" else ""
     return when {
-        abs >= 1_000_000 -> String.format("%s%.1fM", sign, abs / 1_000_000.0)
-        abs >= 1_000 -> String.format("%s%.1fK", sign, abs / 1_000.0)
+        abs >= 1_000_000 -> String.format("%s%.1f میلیون", sign, abs / 1_000_000.0)
+        abs >= 1_000 -> String.format("%s%.1f هزار", sign, abs / 1_000.0)
         else -> String.format("%s%.0f", sign, abs)
     }
 }
