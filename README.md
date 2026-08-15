@@ -15,6 +15,7 @@ Built with **Kotlin**, **Jetpack Compose**, **Material 3**, and **Room**.
 - Insights: savings rate, daily averages, top category, busiest month
 - **Backup & restore**: export all transactions and categories as JSON, restore with full replace
 - **App lock**: local password on first launch, sign-in gate, change password in Settings
+- **Bank SMS capture**: opt-in parsing for trusted senders, with a required title and user confirmation before any transaction is saved
 - Local Room database (data stays on device)
 - Light / dark theme support
 
@@ -63,6 +64,14 @@ app/src/main/java/com/gelengeden/app/
 Financial data stays in the local Room database. Android device/cloud backup is intentionally disabled so that app-lock preferences and private financial records are not copied through the system backup channel. Use the in-app JSON backup and restore flow when you choose to move or preserve your data.
 
 Release signing keys are deliberately excluded from this repository. Create and store them securely outside version control before distributing a signed release.
+
+## Bank SMS capture
+
+Open **Settings → Bank SMS capture** to enable SMS reception and add each bank sender address that the app may process. The app only evaluates messages from those configured senders. It recognizes the amount and transaction direction, stores a local pending draft, and asks the user to enter a title and confirm before creating an income or expense transaction. The full SMS body is not transmitted or displayed in the confirmation flow.
+
+Amounts in Gelengeden are stored in **Toman**. For every sender, choose whether its SMS amounts are already in Toman or are in Rial and should be divided by ten. The Bank Melli withdrawal form `برداشت:2,397,273-` is covered by the parser and becomes an expense suggestion.
+
+> `RECEIVE_SMS` is a sensitive permission. For Google Play distribution, review the current [SMS and Call Log Permissions policy](https://support.google.com/googleplay/android-developer/answer/10208820) and submit any required permissions declaration before publishing. The feature works only after the user explicitly grants SMS access at runtime.
 
 ## Continuous integration
 

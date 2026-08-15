@@ -12,5 +12,7 @@ data class BankSender(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val label: String,
-    val address: String
+    val address: String,
+    /** Whether amounts from this sender are written in Rial and need conversion to Toman. */
+    val amountWasRial: Boolean = false
 )

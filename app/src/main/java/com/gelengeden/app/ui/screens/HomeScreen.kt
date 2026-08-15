@@ -73,6 +73,7 @@ import com.gelengeden.app.data.Transaction
 import com.gelengeden.app.data.TransactionExporter
 import com.gelengeden.app.ui.components.AppLogo
 import com.gelengeden.app.ui.components.EmptyTransactions
+import com.gelengeden.app.ui.components.PendingBankSmsReviewDialog
 import com.gelengeden.app.ui.components.SummaryCard
 import com.gelengeden.app.ui.components.TransactionItem
 import com.gelengeden.app.ui.util.formatPersianDate
@@ -112,6 +113,9 @@ fun HomeScreen(
     onAboutClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val pendingBankSms by viewModel.pendingBankSms.collectAsStateWithLifecycle()
+    var deferredBankSmsId by remember { mutableStateOf<Long?>(null) }
+    val reviewSms = pendingBankSms.firstOrNull { it.id != deferredBankSmsId }
     var pendingDelete by remember { mutableStateOf<Transaction?>(null) }
     var showExportDialog by remember { mutableStateOf(false) }
     var pendingExport by remember { mutableStateOf<PendingExport?>(null) }
@@ -506,6 +510,18 @@ fun HomeScreen(
                 TextButton(onClick = { pendingDelete = null }) {
                     Text(stringResource(R.string.cancel))
                 }
+            }
+        )
+    }
+
+    reviewSms?.let { pendingSms ->
+        PendingBankSmsReviewDialog(
+            pendingSms = pendingSms,
+            categories = viewModel.categoriesFor(pendingSms.suggestedType),
+            onLater = { deferredBankSmsId = pendingSms.id },
+            onConfirm = { title, category ->
+                viewModel.recordPendingBankSms(pendingSms.id, title, category)
+                deferredBankSmsId = null
             }
         )
     }

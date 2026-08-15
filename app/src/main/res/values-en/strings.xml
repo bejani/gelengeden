@@ -256,4 +256,38 @@
     <string name="about_help_settings_title">Settings &amp; password</string>
     <string name="about_help_settings_body">Use the settings icon to change your password or lock the app so a password is required again.</string>
     <string name="about_footer">Built for simple income and expense tracking — Gelengeden</string>
+    <!-- Bank SMS capture -->
+    <string name="settings_sms_title">Bank SMS capture</string>
+    <string name="settings_sms_body">Manage trusted bank senders and review each received transaction draft before it is recorded.</string>
+    <string name="settings_sms_open">Manage bank SMS</string>
+    <string name="sms_settings_title">Bank SMS</string>
+    <string name="sms_auto_capture_title">Automatic SMS capture</string>
+    <string name="sms_auto_capture_body">Only reads messages from the senders you add below. Every message is saved as a local draft and is never recorded without your confirmation.</string>
+    <string name="sms_permission_granted">SMS receive access is enabled.</string>
+    <string name="sms_enable_permission">Enable SMS receive access</string>
+    <string name="sms_enable_notifications">Enable new-draft notifications</string>
+    <string name="sms_senders_title">Trusted senders</string>
+    <string name="sms_add_sender">Add sender</string>
+    <string name="sms_no_senders">No sender has been added yet. Enter the sender address exactly as it appears at the top of the bank message.</string>
+    <string name="sms_privacy_note">The full SMS body is not displayed or sent to any server. Only the amount, transaction type, time, and bank label are used to create a local draft.</string>
+    <string name="sms_unit_rial">The SMS amount is in Rial; it will be converted to Toman.</string>
+    <string name="sms_unit_toman">The SMS amount is in Toman.</string>
+    <string name="sms_bank_label">Bank name</string>
+    <string name="sms_bank_label_hint">e.g. Bank Melli</string>
+    <string name="sms_sender_address">SMS sender address</string>
+    <string name="sms_sender_address_hint">e.g. BMI or the sender number</string>
+    <string name="sms_amount_is_rial">Amounts from this sender are in Rial</string>
+    <string name="sms_add">Add</string>
+    <string name="sms_notification_channel">Review bank SMS drafts</string>
+    <string name="sms_notification_title">A bank transaction is ready to review</string>
+    <string name="sms_notification_body">Enter a title and confirm the transaction.</string>
+    <string name="sms_review_title">Record transaction from SMS</string>
+    <string name="sms_review_source">%1$s · %2$s</string>
+    <string name="sms_review_title_label">Transaction title</string>
+    <string name="sms_review_title_hint">e.g. Grocery shopping</string>
+    <string name="sms_review_category_label">Category</string>
+    <string name="sms_review_later">Later</string>
+    <string name="sms_review_confirm">Confirm and record</string>
+    <string name="sms_review_missing_title">Please enter a transaction title</string>
+
 </resources>

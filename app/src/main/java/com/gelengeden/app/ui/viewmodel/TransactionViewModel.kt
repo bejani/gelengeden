@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.gelengeden.app.data.BackupManager
+import com.gelengeden.app.data.BankSender
+import com.gelengeden.app.data.PendingBankSms
 import com.gelengeden.app.data.BackupSummary
 import com.gelengeden.app.data.Category
 import com.gelengeden.app.data.Transaction
@@ -144,6 +146,23 @@ class TransactionViewModel(
     private val _categoryMessage = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val categoryMessage: SharedFlow<String> = _categoryMessage.asSharedFlow()
 
+    val bankSenders: StateFlow<List<BankSender>> = repository.getAllBankSenders()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
+
+    val pendingBankSms: StateFlow<List<PendingBankSms>> = repository.getPendingBankSms()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
+
+    private val _bankSmsMessage = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val bankSmsMessage: SharedFlow<String> = _bankSmsMessage.asSharedFlow()
+
     private val _backupBusy = MutableStateFlow(false)
     val backupBusy: StateFlow<Boolean> = _backupBusy.asStateFlow()
 
@@ -275,6 +294,26 @@ class TransactionViewModel(
         viewModelScope.launch {
             repository.deleteCategory(category)
                 .onFailure { _categoryMessage.emit(it.message ?: "Could not delete category") }
+        }
+    }
+
+    fun addBankSender(label: String, address: String, amountWasRial: Boolean) {
+        viewModelScope.launch {
+            repository.addBankSender(label, address, amountWasRial)
+                .onFailure { _bankSmsMessage.emit(it.message ?: "Could not add bank sender") }
+        }
+    }
+
+    fun deleteBankSender(sender: BankSender) {
+        viewModelScope.launch {
+            repository.deleteBankSender(sender)
+        }
+    }
+
+    fun recordPendingBankSms(pendingId: Long, title: String, category: String) {
+        viewModelScope.launch {
+            repository.recordPendingBankSms(pendingId, title, category)
+                .onFailure { _bankSmsMessage.emit(it.message ?: "Could not record bank SMS") }
         }
     }
 

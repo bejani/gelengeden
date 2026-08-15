@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import com.gelengeden.app.ui.screens.AboutScreen
 import com.gelengeden.app.ui.screens.AddEditTransactionScreen
 import com.gelengeden.app.ui.screens.BackupRestoreScreen
+import com.gelengeden.app.ui.screens.BankSmsSettingsScreen
 import com.gelengeden.app.ui.screens.HomeScreen
 import com.gelengeden.app.ui.screens.ManageCategoriesScreen
 import com.gelengeden.app.ui.screens.ReportsScreen
@@ -25,6 +26,7 @@ object Routes {
     const val BACKUP = "backup"
     const val ABOUT = "about"
     const val SETTINGS = "settings"
+    const val BANK_SMS_SETTINGS = "bank_sms_settings"
 
     fun edit(id: Long) = "edit/$id"
 }
@@ -99,11 +101,19 @@ fun GelengedenNavGraph(
             SettingsScreen(
                 authViewModel = authViewModel,
                 onBack = { navController.popBackStack() },
+                onBankSmsClick = { navController.navigate(Routes.BANK_SMS_SETTINGS) },
                 onLoggedOut = {
                     // Auth gate in MainActivity will show LoginScreen;
                     // clear nested back stack so we don't restore mid-flow after re-login.
                     navController.popBackStack(Routes.HOME, inclusive = false)
                 }
+            )
+        }
+
+        composable(Routes.BANK_SMS_SETTINGS) {
+            BankSmsSettingsScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
             )
         }
 

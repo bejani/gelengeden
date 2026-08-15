@@ -9,6 +9,8 @@ class TransactionRepository(
 ) {
     private val transactionDao: TransactionDao = database.transactionDao()
     private val categoryDao: CategoryDao = database.categoryDao()
+    private val bankSenderDao: BankSenderDao = database.bankSenderDao()
+    private val pendingBankSmsDao: PendingBankSmsDao = database.pendingBankSmsDao()
 
     fun getAllTransactions(): Flow<List<Transaction>> = transactionDao.getAllTransactions()
 
@@ -94,6 +96,83 @@ class TransactionRepository(
         categoryDao.reassignTransactions(category.name, fallback, category.type)
         categoryDao.delete(category)
         return Result.success(Unit)
+    }
+
+    // --- Bank SMS senders and review queue ---
+
+    fun getAllBankSenders(): Flow<List<BankSender>> = bankSenderDao.getAll()
+
+    suspend fun getAllBankSendersOnce(): List<BankSender> = bankSenderDao.getAllOnce()
+
+    suspend fun addBankSender(
+        label: String,
+        address: String,
+        amountWasRial: Boolean
+    ): Result<Unit> {
+        val cleanLabel = label.trim()
+        val cleanAddress = address.trim()
+        if (cleanLabel.isEmpty() || cleanAddress.isEmpty()) {
+            return Result.failure(IllegalArgumentException("Bank name and sender address are required"))
+        }
+        if (bankSenderDao.getAllOnce().any { it.address.equals(cleanAddress, ignoreCase = true) }) {
+            return Result.failure(IllegalArgumentException("This sender address already exists"))
+        }
+        bankSenderDao.insert(
+            BankSender(
+                label = cleanLabel,
+                address = cleanAddress,
+                amountWasRial = amountWasRial
+            )
+        )
+        return Result.success(Unit)
+    }
+
+    suspend fun deleteBankSender(sender: BankSender) = bankSenderDao.delete(sender)
+
+    fun getPendingBankSms(): Flow<List<PendingBankSms>> =
+        pendingBankSmsDao.getByStatus(PendingSmsStatus.PENDING)
+
+    suspend fun enqueuePendingBankSms(sms: PendingBankSms): Boolean =
+        pendingBankSmsDao.insert(sms) != -1L
+
+    suspend fun recordPendingBankSms(
+        pendingId: Long,
+        title: String,
+        category: String
+    ): Result<Unit> {
+        val cleanTitle = title.trim()
+        val cleanCategory = category.trim()
+        if (cleanTitle.isEmpty()) {
+            return Result.failure(IllegalArgumentException("Title is required"))
+        }
+        if (cleanCategory.isEmpty()) {
+            return Result.failure(IllegalArgumentException("Category is required"))
+        }
+        return try {
+            database.withTransaction {
+                val pending = pendingBankSmsDao.getById(pendingId)
+                    ?: throw IllegalArgumentException("Pending SMS not found")
+                if (pending.status != PendingSmsStatus.PENDING) {
+                    throw IllegalStateException("This SMS has already been handled")
+                }
+                val amount = pending.displayAmount
+                    ?: throw IllegalArgumentException("SMS amount is invalid")
+                transactionDao.insert(
+                    Transaction(
+                        title = cleanTitle,
+                        amount = amount,
+                        type = pending.suggestedType,
+                        category = cleanCategory,
+                        note = "ثبت‌شده از پیامک ${pending.senderLabel}",
+                        dateMillis = pending.receivedAt
+                    )
+                )
+                pendingBankSmsDao.updateStatus(pendingId, PendingSmsStatus.RECORDED)
+            }
+            Result.success(Unit)
+        } catch (error: Exception) {
+            Result.failure(error)
+        }
     }
 
     // --- Backup / restore ---

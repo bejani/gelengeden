@@ -61,6 +61,7 @@ import com.gelengeden.app.ui.viewmodel.AuthViewModel
 fun SettingsScreen(
     authViewModel: AuthViewModel,
     onBack: () -> Unit,
+    onBankSmsClick: () -> Unit,
     onLoggedOut: () -> Unit
 ) {
     val changeState by authViewModel.changePasswordState.collectAsStateWithLifecycle()
@@ -243,6 +244,39 @@ fun SettingsScreen(
                             } else {
                                 Text(stringResource(R.string.settings_save_password))
                             }
+                        }
+                    }
+                }
+            }
+
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = stringResource(R.string.settings_sms_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = stringResource(R.string.settings_sms_body),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(14.dp))
+                        OutlinedButton(
+                            onClick = onBankSmsClick,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(stringResource(R.string.settings_sms_open))
                         }
                     }
                 }
