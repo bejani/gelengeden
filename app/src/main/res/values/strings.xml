@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">گلنگدن</string>
+    <string name="app_tagline">درآمد و هزینه</string>
+
+    <!-- Common -->
+    <string name="all">همه</string>
+    <string name="income">درآمد</string>
+    <string name="expense">هزینه</string>
+    <string name="balance">موجودی</string>
+    <string name="back">بازگشت</string>
+    <string name="cancel">انصراف</string>
+    <string name="delete">حذف</string>
+    <string name="save">ذخیره</string>
+    <string name="add">افزودن</string>
+    <string name="edit">ویرایش</string>
+    <string name="name">نام</string>
+    <string name="from">از</string>
+    <string name="to">تا</string>
+    <string name="other">سایر</string>
+    <string name="currency_suffix">تومان</string>
+
+    <!-- Home -->
+    <string name="transactions">تراکنش‌ها</string>
+    <string name="reports">گزارش‌ها</string>
+    <string name="manage_categories">مدیریت دسته‌ها</string>
+    <string name="add_transaction">افزودن تراکنش</string>
+    <string name="income_gelen">درآمد</string>
+    <string name="expense_giden">هزینه</string>
+    <string name="no_transactions_yet">هنوز تراکنشی ثبت نشده</string>
+    <string name="tap_plus_to_add">برای افزودن درآمد یا هزینه روی + بزنید</string>
+    <string name="search_transactions">جستجوی تراکنش</string>
+    <string name="search_transactions_hint">جستجو بر اساس نام…</string>
+    <string name="search_clear">پاک کردن جستجو</string>
+    <string name="no_search_results">نتیجه‌ای پیدا نشد</string>
+    <string name="no_search_results_hint">نام دیگری را امتحان کنید یا فیلتر را عوض کنید</string>
+    <string name="delete_transaction_title">حذف تراکنش؟</string>
+    <string name="delete_transaction_message">«%1$s» برای همیشه حذف می‌شود.</string>
+    <string name="delete_transaction_cd">حذف تراکنش</string>
+
+    <!-- Export list -->
+    <string name="export_list">خروجی لیست</string>
+    <string name="export_list_cd">خروجی لیست تراکنش‌ها</string>
+    <string name="export_choose_format">خروجی گرفتن به چه قالبی؟</string>
+    <string name="export_as_csv">فایل CSV</string>
+    <string name="export_as_excel">فایل Excel</string>
+    <string name="export_csv_hint">مناسب برای صفحات گسترده و برنامه‌های دیگر</string>
+    <string name="export_excel_hint">مستقیماً در Excel یا LibreOffice باز می‌شود</string>
+    <string name="export_column_date">تاریخ</string>
+    <string name="export_column_type">نوع</string>
+    <string name="export_column_title">عنوان</string>
+    <string name="export_column_category">دسته</string>
+    <string name="export_column_amount">مبلغ</string>
+    <string name="export_column_note">یادداشت</string>
+    <string name="export_sheet_name">تراکنش‌ها</string>
+    <string name="export_sheet_summary">خلاصه</string>
+    <string name="export_summary_count">تعداد</string>
+    <string name="export_summary_total_income">جمع درآمد</string>
+    <string name="export_summary_total_expense">جمع هزینه</string>
+    <string name="export_summary_income_by_category">درآمد بر اساس دسته</string>
+    <string name="export_summary_expense_by_category">هزینه بر اساس دسته</string>
+    <string name="export_saved">فایل ذخیره شد (%1$d تراکنش)</string>
+    <string name="export_failed">ذخیرهٔ فایل ناموفق بود</string>
+    <string name="export_empty">تراکنشی برای خروجی نیست</string>
+    <string name="export_share_title">اشتراک‌گذاری لیست</string>
+    <string name="export_share_action">اشتراک</string>
+
+    <!-- Add / Edit -->
+    <string name="add_transaction_title">افزودن تراکنش</string>
+    <string name="edit_transaction_title">ویرایش تراکنش</string>
+    <string name="type">نوع</string>
+    <string name="title_label">عنوان</string>
+    <string name="title_placeholder">مثال: خرید مواد غذایی</string>
+    <string name="amount">مبلغ</string>
+    <string name="amount_placeholder">۰</string>
+    <string name="category">دسته‌بندی</string>
+    <string name="select_category">انتخاب دسته</string>
+    <string name="search_categories">جستجوی دسته…</string>
+    <string name="no_category_match">دسته‌ای با این نام پیدا نشد</string>
+    <string name="transaction_date_label">تاریخ تراکنش: %1$s</string>
+    <string name="no_categories_hint">هنوز دسته‌ای نیست. از صفحه اصلی، «دسته‌ها» را باز کنید و اضافه کنید.</string>
+    <string name="note_optional">یادداشت (اختیاری)</string>
+    <string name="note_placeholder">جزئیات بیشتر…</string>
+    <string name="error_enter_title">لطفاً عنوان را وارد کنید</string>
+    <string name="error_valid_amount">مبلغ معتبر و بیشتر از صفر وارد کنید</string>
+    <string name="error_choose_category">لطفاً یک دسته انتخاب کنید</string>
+    <string name="save_transaction">ذخیره تراکنش</string>
+    <string name="save_changes">ذخیره تغییرات</string>
+
+    <!-- Categories -->
+    <string name="categories">دسته‌بندی‌ها</string>
+    <string name="categories_subtitle">دسته‌های درآمد و هزینه را برای ثبت تراکنش‌ها مدیریت کنید.</string>
+    <string name="add_category">افزودن دسته</string>
+    <string name="no_categories_yet">هنوز دسته‌ای نیست. برای افزودن روی + بزنید.</string>
+    <string name="add_income_category">افزودن دسته درآمد</string>
+    <string name="add_expense_category">افزودن دسته هزینه</string>
+    <string name="rename_category">تغییر نام دسته</string>
+    <string name="delete_category_title">حذف دسته؟</string>
+    <string name="delete_category_message">«%1$s» حذف می‌شود. تراکنش‌های این دسته به دسته دیگری از همان نوع منتقل می‌شوند.</string>
+    <string name="rename_category_cd">تغییر نام %1$s</string>
+    <string name="delete_category_cd">حذف %1$s</string>
+    <string name="error_enter_name">نام را وارد کنید</string>
+    <string name="error_category_empty">نام دسته نمی‌تواند خالی باشد</string>
+    <string name="error_category_exists">این دسته از قبل وجود دارد</string>
+    <string name="error_keep_one_income">حداقل یک دسته درآمد نگه دارید</string>
+    <string name="error_keep_one_expense">حداقل یک دسته هزینه نگه دارید</string>
+    <string name="error_fallback_category">دسته جایگزین پیدا نشد</string>
+    <string name="error_add_category">امکان افزودن دسته نبود</string>
+    <string name="error_rename_category">امکان تغییر نام نبود</string>
+    <string name="error_delete_category">امکان حذف دسته نبود</string>
+
+    <!-- Reports -->
+    <string name="period">بازه زمانی</string>
+    <string name="this_month">این ماه</string>
+    <string name="last_month">ماه قبل</string>
+    <string name="last_3_months">۳ ماه</string>
+    <string name="last_6_months">۶ ماه</string>
+    <string name="this_year">امسال</string>
+    <string name="custom">دلخواه</string>
+    <string name="pick_month">انتخاب ماه</string>
+    <string name="show">نمایش</string>
+    <string name="period_summary">خلاصه بازه</string>
+    <string name="net_balance_transactions">موجودی خالص · %1$d تراکنش</string>
+    <string name="total_income_transactions">مجموع درآمد · %1$d تراکنش</string>
+    <string name="total_expense_transactions">مجموع هزینه · %1$d تراکنش</string>
+    <string name="insights">بینش‌ها</string>
+    <string name="categories_section">دسته‌ها</string>
+    <string name="no_transactions_in_period">در این بازه تراکنشی نیست.</string>
+    <string name="breakdown">جزئیات</string>
+    <string name="monthly_charts">نمودارهای ماهانه</string>
+    <string name="months_3">۳ ماه</string>
+    <string name="months_6">۶ ماه</string>
+    <string name="months_12">۱۲ ماه</string>
+    <string name="chart_window_hint">نمودارها همیشه %1$d ماه اخیر را نشان می‌دهند (مستقل از بازه بالا).</string>
+    <string name="date_range_days">%1$s  ←  %2$s  ·  %3$d روز</string>
+    <string name="tx_count_one">%1$d تراکنش</string>
+    <string name="tx_count_other">%1$d تراکنش</string>
+    <string name="income_percent_txs">درآمد · %1$s · %2$s</string>
+    <string name="expense_percent_txs">هزینه · %1$s · %2$s</string>
+
+    <!-- Insights -->
+    <string name="insight_savings_rate">نرخ پس‌انداز</string>
+    <string name="insight_of_income_kept">از درآمد باقی‌مانده</string>
+    <string name="insight_no_income">درآمدی در این بازه نیست</string>
+    <string name="insight_avg_day">میانگین روزانه</string>
+    <string name="insight_daily_spending">هزینه روزانه</string>
+    <string name="insight_daily_income">درآمد روزانه</string>
+    <string name="insight_total">مجموع</string>
+    <string name="insight_entries">%1$d مورد</string>
+    <string name="insight_top_category">پرتکرارترین دسته</string>
+    <string name="insight_busiest_month">پرتراکنش‌ترین ماه</string>
+    <string name="insight_in_chart_window">در پنجره نمودار</string>
+    <string name="dash">—</string>
+
+    <!-- Charts -->
+    <string name="chart_monthly_comparison">مقایسه ماهانه</string>
+    <string name="chart_income_vs_expense">درآمد در برابر هزینه در هر ماه</string>
+    <string name="chart_income_by_month">درآمد ماهانه</string>
+    <string name="chart_expense_by_month">هزینه ماهانه</string>
+    <string name="chart_peak_all">اوج: %1$s · ورودی %2$s · خروجی %3$s</string>
+    <string name="chart_peak_single">اوج: %1$s · %2$s</string>
+    <string name="chart_trend_title">روند در طول زمان</string>
+    <string name="chart_trend_all">روند درآمد و هزینه</string>
+    <string name="chart_trend_income">روند درآمد</string>
+    <string name="chart_trend_expense">روند هزینه</string>
+    <string name="chart_category_share">سهم دسته‌ها</string>
+    <string name="chart_category_all">ورود و خروج پول از کجاست</string>
+    <string name="chart_category_income">منابع درآمد</string>
+    <string name="chart_category_expense">هزینه به تفکیک دسته</string>
+    <string name="chart_no_category_data">برای این بازه داده دسته‌ای نیست.</string>
+    <string name="chart_cats_count">%1$d دسته</string>
+    <string name="chart_balance_trend">روند موجودی خالص</string>
+    <string name="chart_balance_subtitle">درآمد منهای هزینه در هر ماه</string>
+    <string name="chart_latest">آخرین: %1$s</string>
+    <string name="chart_window_net">خالص بازه: %1$s</string>
+    <string name="chart_empty">هنوز داده‌ای برای این بازه نیست.\nبرای دیدن نمودار تراکنش اضافه کنید.</string>
+
+    <!-- Backup / restore -->
+    <string name="backup_restore_title">پشتیبان‌گیری و بازیابی</string>
+    <string name="backup_restore_subtitle">از تراکنش‌ها و دسته‌ها نسخهٔ پشتیبان بگیرید یا یک فایل پشتیبان را بازیابی کنید.</string>
+    <string name="backup_current_data_title">داده‌های فعلی</string>
+    <string name="backup_current_data">%1$d تراکنش · %2$d دسته</string>
+    <string name="backup_section_title">خروجی پشتیبان</string>
+    <string name="backup_section_body">همهٔ تراکنش‌ها و دسته‌ها را در یک فایل JSON ذخیره می‌کند. می‌توانید آن را در حافظه، ابر یا پیام‌رسان نگه دارید.</string>
+    <string name="backup_create">ساخت فایل پشتیبان</string>
+    <string name="backup_saved">پشتیبان ذخیره شد (%1$d تراکنش، %2$d دسته)</string>
+    <string name="backup_failed">ذخیرهٔ پشتیبان ناموفق بود</string>
+    <string name="backup_busy">عملیات دیگری در حال انجام است</string>
+    <string name="backup_share_title">اشتراک‌گذاری پشتیبان</string>
+    <string name="backup_share_action">اشتراک</string>
+    <string name="backup_share_again">اشتراک‌گذاری دوباره</string>
+    <string name="backup_cd">پشتیبان‌گیری و بازیابی</string>
+    <string name="restore_section_title">بازیابی</string>
+    <string name="restore_section_body">فایل پشتیبان را انتخاب کنید. داده‌های فعلی کاملاً با محتوای فایل جایگزین می‌شوند.</string>
+    <string name="restore_from_file">بازیابی از فایل</string>
+    <string name="restore_confirm_title">جایگزینی همهٔ داده‌ها؟</string>
+    <string name="restore_confirm_message">این کار همهٔ تراکنش‌ها و دسته‌های فعلی را پاک می‌کند و محتوای فایل پشتیبان را جایگزین می‌کند. قابل بازگشت نیست.</string>
+    <string name="restore_confirm_action">بازیابی</string>
+    <string name="restore_preview">%1$d تراکنش · %2$d دسته · تاریخ پشتیبان: %3$s</string>
+    <string name="restore_success">بازیابی شد (%1$d تراکنش، %2$d دسته)</string>
+    <string name="restore_failed">بازیابی ناموفق بود</string>
+    <string name="restore_invalid_file">فایل پشتیبان معتبر نیست</string>
+    <string name="backup_tips">نکته: فایل را در جایی امن نگه دارید. بازیابی، داده‌های فعلی را کامل جایگزین می‌کند — قبل از بازیابی یک پشتیبان تازه بگیرید.</string>
+
+    <!-- Home screen widget -->
+    <string name="widget_balance_description">موجودی، درآمد و هزینه را روی صفحهٔ اصلی نشان می‌دهد</string>
+    <string name="widget_placeholder_amount">۰ تومان</string>
+
+    <!-- Login / auth -->
+    <string name="login_title">ورود</string>
+    <string name="login_subtitle">برای دسترسی به داده‌های مالی، رمز عبور را وارد کنید.</string>
+    <string name="login_setup_title">ساخت رمز عبور</string>
+    <string name="login_setup_subtitle">یک رمز عبور برای قفل کردن برنامه روی این دستگاه بسازید. داده‌ها فقط روی گوشی شما می‌مانند.</string>
+    <string name="login_password">رمز عبور</string>
+    <string name="login_new_password">رمز عبور جدید</string>
+    <string name="login_confirm_password">تکرار رمز عبور</string>
+    <string name="login_password_hint">حداقل %1$d کاراکتر</string>
+    <string name="login_create_password">ایجاد و ادامه</string>
+    <string name="login_sign_in">ورود</string>
+    <string name="login_show_password">نمایش رمز</string>
+    <string name="login_hide_password">پنهان کردن رمز</string>
+    <string name="login_error_too_short">رمز عبور باید حداقل %1$d کاراکتر باشد</string>
+    <string name="login_error_mismatch">رمزها یکسان نیستند</string>
+    <string name="login_error_empty">رمز عبور را وارد کنید</string>
+    <string name="login_error_wrong_password">رمز عبور نادرست است</string>
+    <string name="login_error_generic">عملیات ناموفق بود. دوباره تلاش کنید</string>
+
+    <!-- Settings -->
+    <string name="settings_title">تنظیمات</string>
+    <string name="settings_cd">تنظیمات</string>
+    <string name="settings_subtitle">امنیت برنامه و مدیریت رمز عبور.</string>
+    <string name="settings_change_password_title">تغییر رمز عبور</string>
+    <string name="settings_change_password_body">رمز فعلی را وارد کنید و رمز جدید بسازید (حداقل %1$d کاراکتر).</string>
+    <string name="settings_current_password">رمز فعلی</string>
+    <string name="settings_new_password">رمز جدید</string>
+    <string name="settings_confirm_new_password">تکرار رمز جدید</string>
+    <string name="settings_save_password">ذخیره رمز جدید</string>
+    <string name="settings_password_changed">رمز عبور با موفقیت تغییر کرد</string>
+    <string name="settings_error_same_password">رمز جدید باید با رمز فعلی فرق داشته باشد</string>
+    <string name="settings_session_title">قفل برنامه</string>
+    <string name="settings_session_body">برای خروج از نشست فعلی و نیاز به ورود دوباره، برنامه را قفل کنید.</string>
+    <string name="settings_lock_app">قفل کردن برنامه</string>
+
+    <!-- About / Help -->
+    <string name="about_title">درباره و راهنما</string>
+    <string name="about_cd">درباره و راهنما</string>
+    <string name="about_version">نسخه %1$s</string>
+    <string name="about_what_title">گلنگدن چیست؟</string>
+    <string name="about_what_body">گلنگدن یک دفترچهٔ شخصی برای ثبت درآمد (گلن) و هزینه (گدن) است. موجودی، دسته‌بندی‌ها، گزارش‌ها و پشتیبان‌گیری را در یکجا دارید — و همهٔ داده‌ها فقط روی دستگاه شما می‌مانند.</string>
+    <string name="about_help_title">راهنمای سریع</string>
+    <string name="about_help_transactions_title">تراکنش‌ها</string>
+    <string name="about_help_transactions_body">با دکمهٔ + درآمد یا هزینه اضافه کنید. روی هر مورد بزنید تا ویرایش شود. با کشیدن یا حذف، می‌توانید آن را پاک کنید. از نوار جستجو و فیلتر همه / درآمد / هزینه برای پیدا کردن موارد استفاده کنید. با آیکون خروجی کنار «تراکنش‌ها» می‌توانید لیست فعلی را به‌صورت CSV یا Excel ذخیره کنید.</string>
+    <string name="about_help_categories_title">دسته‌بندی‌ها</string>
+    <string name="about_help_categories_body">از آیکون دسته‌ها در بالای صفحهٔ اصلی، دسته‌های درآمد و هزینه را بسازید، تغییر نام دهید یا حذف کنید. هنگام ثبت تراکنش از همین دسته‌ها انتخاب می‌کنید.</string>
+    <string name="about_help_reports_title">گزارش‌ها</string>
+    <string name="about_help_reports_body">آیکون نمودار، خلاصهٔ بازه، بینش‌ها (نرخ پس‌انداز، میانگین روزانه و …) و نمودارهای ماهانه و دسته‌ای را نشان می‌دهد. بازه را از پیش‌فرض‌ها یا تاریخ دلخواه انتخاب کنید.</string>
+    <string name="about_help_backup_title">پشتیبان‌گیری و بازیابی</string>
+    <string name="about_help_backup_body">از آیکون پشتیبان، همهٔ تراکنش‌ها و دسته‌ها را به‌صورت فایل JSON ذخیره یا بازیابی کنید. بازیابی داده‌های فعلی را کامل جایگزین می‌کند — قبلش یک پشتیبان تازه بگیرید.</string>
+    <string name="about_help_widget_title">ویجت صفحهٔ اصلی</string>
+    <string name="about_help_widget_body">ویجت موجودی را به صفحهٔ اصلی گوشی اضافه کنید تا بدون باز کردن برنامه، موجودی، درآمد و هزینه را ببینید.</string>
+    <string name="about_privacy_title">حریم خصوصی</string>
+    <string name="about_privacy_body">هیچ حساب ابری یا سروری در کار نیست. داده‌ها فقط در پایگاه دادهٔ محلی روی گوشی شما ذخیره می‌شوند. رمز عبور برنامه فقط روی همین دستگاه برای قفل دسترسی استفاده می‌شود.</string>
+    <string name="about_help_settings_title">تنظیمات و رمز عبور</string>
+    <string name="about_help_settings_body">از آیکون تنظیمات می‌توانید رمز عبور را عوض کنید یا برنامه را قفل کنید تا برای ورود دوباره رمز لازم باشد.</string>
+    <string name="about_footer">ساخته‌شده برای پیگیری سادهٔ درآمد و هزینه — گروه نرم افزاری همدل - bejani@gmail.com</string>
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#1565C0</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Home screen widget -->
+    <color name="widget_background">#1565C0</color>
+    <color name="widget_on_primary">#FFFFFF</color>
+    <color name="widget_on_primary_muted">#D9FFFFFF</color>
+    <color name="widget_income">#B2FFB2</color>
+    <color name="widget_expense">#FFCDD2</color>
+</resources>
