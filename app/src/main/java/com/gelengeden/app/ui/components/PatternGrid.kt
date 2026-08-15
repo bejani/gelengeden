@@ -14,14 +14,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import kotlin.math.min
 
-/** A tap-based 3×3 pattern grid. Each node can be selected once, in order. */
+/** A drag-based 3×3 pattern grid. Each node can be selected once, in order. */
 @Composable
 fun PatternGrid(
     selectedNodes: List<Int>,
@@ -41,11 +41,18 @@ fun PatternGrid(
             .semantics { this.contentDescription = contentDescription }
             .pointerInput(enabled) {
                 if (enabled) {
-                    detectTapGestures { offset ->
+                    fun addNodeAt(offset: Offset) {
                         val column = (offset.x / (size.width / 3f)).toInt().coerceIn(0, 2)
                         val row = (offset.y / (size.height / 3f)).toInt().coerceIn(0, 2)
                         onNodeTapped(row * 3 + column)
                     }
+                    detectDragGestures(
+                        onDragStart = { offset -> addNodeAt(offset) },
+                        onDrag = { change, _ ->
+                            change.consume()
+                            addNodeAt(change.position)
+                        }
+                    )
                 }
             }
     ) {
