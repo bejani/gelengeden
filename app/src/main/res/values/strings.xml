@@ -30,8 +30,14 @@
     <string name="no_transactions_yet">هنوز تراکنشی ثبت نشده</string>
     <string name="tap_plus_to_add">برای افزودن درآمد یا هزینه روی + بزنید</string>
     <string name="search_transactions">جستجوی تراکنش</string>
-    <string name="search_transactions_hint">جستجو بر اساس نام…</string>
+    <string name="search_transactions_hint">جستجو در عنوان، دسته، توضیحات یا مبلغ…</string>
     <string name="search_clear">پاک کردن جستجو</string>
+    <string name="advanced_filters">فیلترهای پیشرفته</string>
+    <string name="filter_by_category">فیلتر بر اساس دسته‌بندی</string>
+    <string name="active_category_filter">دستهٔ انتخاب‌شده: %1$s</string>
+    <string name="clear_all_filters">پاک کردن همهٔ فیلترها</string>
+    <string name="no_categories_for_filter">دسته‌ای برای این نوع تراکنش وجود ندارد.</string>
+    <string name="done">انجام شد</string>
     <string name="no_search_results">نتیجه‌ای پیدا نشد</string>
     <string name="no_search_results_hint">نام دیگری را امتحان کنید یا فیلتر را عوض کنید</string>
     <string name="delete_transaction_title">حذف تراکنش؟</string>

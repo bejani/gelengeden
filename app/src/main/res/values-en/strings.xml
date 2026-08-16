@@ -28,8 +28,14 @@
     <string name="no_transactions_yet">No transactions yet</string>
     <string name="tap_plus_to_add">Tap + to add income or expense</string>
     <string name="search_transactions">Search transactions</string>
-    <string name="search_transactions_hint">Search by name…</string>
+    <string name="search_transactions_hint">Search title, category, notes, or amount…</string>
     <string name="search_clear">Clear search</string>
+    <string name="advanced_filters">Advanced filters</string>
+    <string name="filter_by_category">Filter by category</string>
+    <string name="active_category_filter">Selected category: %1$s</string>
+    <string name="clear_all_filters">Clear all filters</string>
+    <string name="no_categories_for_filter">No categories are available for this type.</string>
+    <string name="done">Done</string>
     <string name="no_search_results">No results found</string>
     <string name="no_search_results_hint">Try another name or change the type filter</string>
     <string name="delete_transaction_title">Delete transaction?</string>

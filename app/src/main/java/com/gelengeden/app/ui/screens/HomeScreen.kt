@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.TableChart
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.automirrored.filled.TextSnippet
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -125,12 +126,14 @@ fun HomeScreen(
     var showExportDialog by remember { mutableStateOf(false) }
     var pendingExport by remember { mutableStateOf<PendingExport?>(null) }
     var isExporting by remember { mutableStateOf(false) }
+    var showFilterDialog by remember { mutableStateOf(false) }
 
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val hasSearch = uiState.searchQuery.isNotBlank()
+    val hasActiveFilters = hasSearch || uiState.filter != FilterType.ALL || uiState.selectedCategory != null
 
     fun shareExport(uri: Uri, mime: String) {
         runCatching {
@@ -451,12 +454,16 @@ fun HomeScreen(
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = uiState.searchQuery,
-                        onValueChange = viewModel::setSearchQuery,
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        shape = RoundedCornerShape(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = uiState.searchQuery,
+                            onValueChange = viewModel::setSearchQuery,
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                            shape = RoundedCornerShape(14.dp),
                         placeholder = {
                             Text(stringResource(R.string.search_transactions_hint))
                         },
@@ -479,15 +486,32 @@ fun HomeScreen(
                                 }
                             }
                         },
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                        keyboardActions = KeyboardActions(
-                            onSearch = { focusManager.clearFocus() }
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                            keyboardActions = KeyboardActions(
+                                onSearch = { focusManager.clearFocus() }
+                            )
                         )
-                    )
+                        IconButton(onClick = { showFilterDialog = true }) {
+                            Icon(
+                                imageVector = Icons.Default.Tune,
+                                contentDescription = stringResource(R.string.advanced_filters)
+                            )
+                        }
+                    }
+                    if (uiState.selectedCategory != null) {
+                        Text(
+                            text = stringResource(R.string.active_category_filter, uiState.selectedCategory),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
                     Spacer(modifier = Modifier.height(10.dp))
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState())
                     ) {
                         FilterChip(
                             selected = uiState.filter == FilterType.ALL,
@@ -504,6 +528,21 @@ fun HomeScreen(
                             onClick = { viewModel.setFilter(FilterType.EXPENSE) },
                             label = { Text(stringResource(R.string.expense)) }
                         )
+                        if (uiState.selectedCategory != null) {
+                            FilterChip(
+                                selected = true,
+                                onClick = { viewModel.setCategoryFilter(null) },
+                                label = { Text(uiState.selectedCategory) }
+                            )
+                        }
+                    }
+                    if (hasActiveFilters) {
+                        TextButton(
+                            onClick = { viewModel.clearAllFilters() },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(stringResource(R.string.clear_all_filters))
+                        }
                     }
                 }
 
@@ -533,6 +572,55 @@ fun HomeScreen(
         }
     }
 
+    if (showFilterDialog) {
+        AlertDialog(
+            onDismissRequest = { showFilterDialog = false },
+            title = { Text(stringResource(R.string.advanced_filters)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        text = stringResource(R.string.filter_by_category),
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    if (uiState.availableCategories.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.no_categories_for_filter),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            uiState.availableCategories.forEach { category ->
+                                FilterChip(
+                                    selected = uiState.selectedCategory == category,
+                                    onClick = {
+                                        viewModel.setCategoryFilter(
+                                            if (uiState.selectedCategory == category) null else category
+                                        )
+                                    },
+                                    label = { Text(category) }
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showFilterDialog = false }) {
+                    Text(stringResource(R.string.done))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.clearAllFilters() }) {
+                    Text(stringResource(R.string.clear_all_filters))
+                }
+            }
+        )
+    }
     pendingDelete?.let { transaction ->
         AlertDialog(
             onDismissRequest = { pendingDelete = null },

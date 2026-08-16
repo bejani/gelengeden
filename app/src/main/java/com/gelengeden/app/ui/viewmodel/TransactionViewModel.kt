@@ -42,6 +42,8 @@ data class DashboardUiState(
     val totalExpense: Double = 0.0,
     val balance: Double = 0.0,
     val filter: FilterType = FilterType.ALL,
+    val selectedCategory: String? = null,
+    val availableCategories: List<String> = emptyList(),
     val searchQuery: String = "",
     val isLoading: Boolean = true,
     /** Changes after a full restore so every home-list row receives fresh Compose state. */
@@ -65,6 +67,9 @@ class TransactionViewModel(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
+    private val _categoryFilter = MutableStateFlow<String?>(null)
+    val categoryFilter: StateFlow<String?> = _categoryFilter.asStateFlow()
+
     private val _reportSelection = MutableStateFlow(ReportSelection())
     private val _homeListGeneration = MutableStateFlow(0)
 
@@ -73,19 +78,28 @@ class TransactionViewModel(
         repository.getTotalIncome(),
         repository.getTotalExpense(),
         repository.getBalance(),
-        combine(_filter, _searchQuery) { filter, query -> filter to query }
+        combine(_filter, _searchQuery, _categoryFilter) { filter, query, category ->
+            Triple(filter, query, category)
+        }
     ) { transactions, income, expense, balance, filterAndQuery ->
-        val (filter, query) = filterAndQuery
+        val (filter, query, selectedCategory) = filterAndQuery
         val byType = when (filter) {
             FilterType.ALL -> transactions
             FilterType.INCOME -> transactions.filter { it.type == TransactionType.INCOME }
             FilterType.EXPENSE -> transactions.filter { it.type == TransactionType.EXPENSE }
         }
-        val trimmedQuery = query.trim()
-        val filtered = if (trimmedQuery.isEmpty()) {
+        val availableCategories = byType.map { it.category }.distinct().sorted()
+        val effectiveCategory = selectedCategory?.takeIf { it in availableCategories }
+        val byCategory = if (effectiveCategory == null) {
             byType
         } else {
-            byType.filter { tx -> matchesSearch(tx, trimmedQuery) }
+            byType.filter { it.category == effectiveCategory }
+        }
+        val trimmedQuery = query.trim()
+        val filtered = if (trimmedQuery.isEmpty()) {
+            byCategory
+        } else {
+            byCategory.filter { tx -> matchesSearch(tx, trimmedQuery) }
         }
         DashboardUiState(
             transactions = filtered,
@@ -93,6 +107,8 @@ class TransactionViewModel(
             totalExpense = expense,
             balance = balance,
             filter = filter,
+            selectedCategory = effectiveCategory,
+            availableCategories = availableCategories,
             searchQuery = query,
             isLoading = false
         )
@@ -213,6 +229,16 @@ class TransactionViewModel(
 
     fun setSearchQuery(query: String) {
         _searchQuery.value = query
+    }
+
+    fun setCategoryFilter(category: String?) {
+        _categoryFilter.value = category
+    }
+
+    fun clearAllFilters() {
+        _filter.value = FilterType.ALL
+        _categoryFilter.value = null
+        _searchQuery.value = ""
     }
 
     fun clearSearch() {
@@ -422,13 +448,47 @@ class TransactionViewModel(
     suspend fun currentDataCounts(): Pair<Int, Int> = repository.currentCounts()
 
     companion object {
-        /** Case-insensitive match on transaction title (name). Also checks category as a light bonus. */
+        /** Searches title, category, note, and amount with Persian/Arabic text and digit normalization. */
         fun matchesSearch(transaction: Transaction, query: String): Boolean {
-            val q = query.trim()
+            val q = normalizeSearchText(query)
             if (q.isEmpty()) return true
-            return transaction.title.contains(q, ignoreCase = true) ||
-                transaction.category.contains(q, ignoreCase = true)
+            val searchable = listOf(
+                transaction.title,
+                transaction.category,
+                transaction.note,
+                transaction.amount.toString(),
+                transaction.amount.toLong().toString()
+            ).joinToString(" ") { normalizeSearchText(it) }
+            return searchable.contains(q, ignoreCase = true)
         }
+
+        private fun normalizeSearchText(value: String): String = value
+            .trim()
+            .lowercase()
+            .replace('ي', 'ی')
+            .replace('ى', 'ی')
+            .replace('ك', 'ک')
+            .replace('ۀ', 'ه')
+            .replace('ة', 'ه')
+            .replace('ؤ', 'و')
+            .replace('إ', 'ا')
+            .replace('أ', 'ا')
+            .replace('ء', 'ا')
+            .replace('۰', '0')
+            .replace('۱', '1')
+            .replace('۲', '2')
+            .replace('۳', '3')
+            .replace('۴', '4')
+            .replace('۵', '5')
+            .replace('۶', '6')
+            .replace('۷', '7')
+            .replace('۸', '8')
+            .replace('۹', '9')
+            .replace(',', '.')
+            .replace('٬', '.')
+            .replace("تومان", "")
+            .replace("ریال", "")
+            .replace(Regex("\\s+"), " ")
 
         fun factory(repository: TransactionRepository): ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {
