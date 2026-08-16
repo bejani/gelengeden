@@ -120,6 +120,7 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val pendingBankSms by viewModel.pendingBankSms.collectAsStateWithLifecycle()
     val quickAddTemplates by viewModel.quickAddTemplates.collectAsStateWithLifecycle()
+    val selectedCategory = uiState.selectedCategory
     var deferredBankSmsId by remember { mutableStateOf<Long?>(null) }
     val reviewSms = pendingBankSms.firstOrNull { it.id != deferredBankSmsId }
     var pendingDelete by remember { mutableStateOf<Transaction?>(null) }
@@ -133,7 +134,7 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val hasSearch = uiState.searchQuery.isNotBlank()
-    val hasActiveFilters = hasSearch || uiState.filter != FilterType.ALL || uiState.selectedCategory != null
+    val hasActiveFilters = hasSearch || uiState.filter != FilterType.ALL || selectedCategory != null
 
     fun shareExport(uri: Uri, mime: String) {
         runCatching {
@@ -498,9 +499,9 @@ fun HomeScreen(
                             )
                         }
                     }
-                    if (uiState.selectedCategory != null) {
+                    if (selectedCategory != null) {
                         Text(
-                            text = stringResource(R.string.active_category_filter, uiState.selectedCategory),
+                            text = stringResource(R.string.active_category_filter, selectedCategory),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(top = 4.dp)
@@ -528,11 +529,11 @@ fun HomeScreen(
                             onClick = { viewModel.setFilter(FilterType.EXPENSE) },
                             label = { Text(stringResource(R.string.expense)) }
                         )
-                        if (uiState.selectedCategory != null) {
+                        if (selectedCategory != null) {
                             FilterChip(
                                 selected = true,
                                 onClick = { viewModel.setCategoryFilter(null) },
-                                label = { Text(uiState.selectedCategory) }
+                                label = { Text(selectedCategory) }
                             )
                         }
                     }
@@ -596,10 +597,10 @@ fun HomeScreen(
                         ) {
                             uiState.availableCategories.forEach { category ->
                                 FilterChip(
-                                    selected = uiState.selectedCategory == category,
+                                    selected = selectedCategory == category,
                                     onClick = {
                                         viewModel.setCategoryFilter(
-                                            if (uiState.selectedCategory == category) null else category
+                                            if (selectedCategory == category) null else category
                                         )
                                     },
                                     label = { Text(category) }
