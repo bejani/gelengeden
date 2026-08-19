@@ -120,6 +120,7 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val pendingBankSms by viewModel.pendingBankSms.collectAsStateWithLifecycle()
     val quickAddTemplates by viewModel.quickAddTemplates.collectAsStateWithLifecycle()
+    val categories by viewModel.categories.collectAsStateWithLifecycle()
     val selectedCategory = uiState.selectedCategory
     var deferredBankSmsId by remember { mutableStateOf<Long?>(null) }
     val reviewSms = pendingBankSms.firstOrNull { it.id != deferredBankSmsId }
@@ -644,7 +645,10 @@ fun HomeScreen(
     reviewSms?.let { pendingSms ->
         PendingBankSmsReviewDialog(
             pendingSms = pendingSms,
-            categories = viewModel.categoriesFor(pendingSms.suggestedType),
+            categories = categories
+                .filter { it.type == pendingSms.suggestedType }
+                .map { it.name }
+                .ifEmpty { viewModel.categoriesFor(pendingSms.suggestedType) },
             onLater = { deferredBankSmsId = pendingSms.id },
             onConfirm = { title, category ->
                 viewModel.recordPendingBankSms(pendingSms.id, title, category)

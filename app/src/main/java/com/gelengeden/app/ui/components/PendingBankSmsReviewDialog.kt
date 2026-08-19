@@ -1,11 +1,15 @@
 package com.gelengeden.app.ui.components
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -39,8 +43,10 @@ fun PendingBankSmsReviewDialog(
     var title by remember(pendingSms.id) { mutableStateOf("") }
     var showTitleError by remember(pendingSms.id) { mutableStateOf(false) }
     val other = stringResource(R.string.other)
-    val category = remember(categories, other) {
-        categories.firstOrNull { it == other } ?: categories.firstOrNull().orEmpty()
+    var category by remember(categories, other) {
+        mutableStateOf(
+            categories.firstOrNull { it == other } ?: categories.firstOrNull().orEmpty()
+        )
     }
     val typeName = stringResource(
         if (pendingSms.suggestedType == TransactionType.INCOME) R.string.income else R.string.expense
@@ -92,12 +98,26 @@ fun PendingBankSmsReviewDialog(
                         }
                     }
                 )
-                if (category.isNotBlank()) {
+                if (categories.isNotEmpty()) {
                     Text(
-                        text = stringResource(R.string.sms_review_category_label) + ": " + category,
+                        text = stringResource(R.string.sms_review_category_label),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        categories.forEach { option ->
+                            FilterChip(
+                                selected = category == option,
+                                onClick = { category = option },
+                                label = { Text(option) }
+                            )
+                        }
+                    }
                 }
             }
         },
