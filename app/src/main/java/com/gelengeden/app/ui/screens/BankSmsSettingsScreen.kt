@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -75,6 +76,7 @@ fun BankSmsSettingsScreen(
         )
     }
     var showAddDialog by remember { mutableStateOf(false) }
+    var editingSender by remember { mutableStateOf<BankSender?>(null) }
 
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -204,7 +206,11 @@ fun BankSmsSettingsScreen(
                 }
             } else {
                 items(senders, key = { it.id }) { sender ->
-                    SenderCard(sender = sender, onDelete = { viewModel.deleteBankSender(sender) })
+                    SenderCard(
+                        sender = sender,
+                        onEdit = { editingSender = sender },
+                        onDelete = { viewModel.deleteBankSender(sender) }
+                    )
                 }
             }
 
@@ -221,17 +227,38 @@ fun BankSmsSettingsScreen(
 
     if (showAddDialog) {
         AddBankSenderDialog(
+            initialSender = null,
             onDismiss = { showAddDialog = false },
-            onAdd = { label, address, amountWasRial ->
+            onSave = { label, address, amountWasRial ->
                 viewModel.addBankSender(label, address, amountWasRial)
                 showAddDialog = false
+            }
+        )
+    }
+    editingSender?.let { sender ->
+        AddBankSenderDialog(
+            initialSender = sender,
+            onDismiss = { editingSender = null },
+            onSave = { label, address, amountWasRial ->
+                viewModel.updateBankSender(
+                    sender.copy(
+                        label = label,
+                        address = address,
+                        amountWasRial = amountWasRial
+                    )
+                )
+                editingSender = null
             }
         )
     }
 }
 
 @Composable
-private fun SenderCard(sender: BankSender, onDelete: () -> Unit) {
+private fun SenderCard(
+    sender: BankSender,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
@@ -256,6 +283,12 @@ private fun SenderCard(sender: BankSender, onDelete: () -> Unit) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+            IconButton(onClick = onEdit) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = stringResource(R.string.sms_edit_sender, sender.label)
+                )
+            }
             IconButton(onClick = onDelete) {
                 Icon(
                     imageVector = Icons.Default.DeleteOutline,
@@ -269,16 +302,23 @@ private fun SenderCard(sender: BankSender, onDelete: () -> Unit) {
 
 @Composable
 private fun AddBankSenderDialog(
+    initialSender: BankSender?,
     onDismiss: () -> Unit,
-    onAdd: (label: String, address: String, amountWasRial: Boolean) -> Unit
+    onSave: (label: String, address: String, amountWasRial: Boolean) -> Unit
 ) {
-    var label by remember { mutableStateOf("") }
-    var address by remember { mutableStateOf("") }
-    var amountWasRial by remember { mutableStateOf(false) }
+    var label by remember(initialSender?.id) { mutableStateOf(initialSender?.label.orEmpty()) }
+    var address by remember(initialSender?.id) { mutableStateOf(initialSender?.address.orEmpty()) }
+    var amountWasRial by remember(initialSender?.id) { mutableStateOf(initialSender?.amountWasRial == true) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.sms_add_sender)) },
+        title = {
+            Text(
+                stringResource(
+                    if (initialSender == null) R.string.sms_add_sender else R.string.sms_edit_sender_title
+                )
+            )
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
@@ -312,10 +352,10 @@ private fun AddBankSenderDialog(
         },
         confirmButton = {
             TextButton(
-                onClick = { onAdd(label, address, amountWasRial) },
+                onClick = { onSave(label, address, amountWasRial) },
                 enabled = label.isNotBlank() && address.isNotBlank()
             ) {
-                Text(stringResource(R.string.sms_add))
+                Text(stringResource(if (initialSender == null) R.string.sms_add else R.string.save))
             }
         },
         dismissButton = {

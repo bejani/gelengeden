@@ -192,6 +192,30 @@ class TransactionRepository(
         return Result.success(Unit)
     }
 
+    suspend fun updateBankSender(sender: BankSender): Result<Unit> {
+        val cleanLabel = sender.label.trim()
+        val cleanAddress = sender.address.trim()
+        if (cleanLabel.isEmpty() || cleanAddress.isEmpty()) {
+            return Result.failure(IllegalArgumentException("Bank name and sender address are required"))
+        }
+        return try {
+            database.withTransaction {
+                val duplicate = bankSenderDao.getAllOnce().any {
+                    it.id != sender.id && it.address.equals(cleanAddress, ignoreCase = true)
+                }
+                if (duplicate) {
+                    throw IllegalArgumentException("This sender address already exists")
+                }
+                bankSenderDao.update(
+                    sender.copy(label = cleanLabel, address = cleanAddress)
+                )
+            }
+            Result.success(Unit)
+        } catch (error: Exception) {
+            Result.failure(error)
+        }
+    }
+
     suspend fun deleteBankSender(sender: BankSender) = bankSenderDao.delete(sender)
 
     fun getPendingBankSms(): Flow<List<PendingBankSms>> =

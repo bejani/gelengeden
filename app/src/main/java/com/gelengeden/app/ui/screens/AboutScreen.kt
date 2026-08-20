@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SettingsBackupRestore
+import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -184,6 +185,20 @@ fun AboutScreen(
                     icon = Icons.Default.Settings,
                     title = stringResource(R.string.about_help_settings_title),
                     body = stringResource(R.string.about_help_settings_body)
+                )
+            }
+            item {
+                HelpTipCard(
+                    icon = Icons.Default.AddCircle,
+                    title = stringResource(R.string.about_help_quick_add_title),
+                    body = stringResource(R.string.about_help_quick_add_body)
+                )
+            }
+            item {
+                HelpTipCard(
+                    icon = Icons.Default.Sms,
+                    title = stringResource(R.string.about_help_sms_title),
+                    body = stringResource(R.string.about_help_sms_body)
                 )
             }
             item {

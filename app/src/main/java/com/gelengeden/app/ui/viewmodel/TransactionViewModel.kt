@@ -392,6 +392,13 @@ class TransactionViewModel(
         }
     }
 
+    fun updateBankSender(sender: BankSender) {
+        viewModelScope.launch {
+            repository.updateBankSender(sender)
+                .onFailure { _bankSmsMessage.emit(it.message ?: "Could not update bank sender") }
+        }
+    }
+
     fun deleteBankSender(sender: BankSender) {
         viewModelScope.launch {
             repository.deleteBankSender(sender)

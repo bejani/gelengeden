@@ -290,7 +290,7 @@
     <string name="about_what_body">Gelengeden is a personal ledger for income (gelen) and expenses (giden). Track balance, categories, reports, and backups in one place — all data stays on your device.</string>
     <string name="about_help_title">Quick help</string>
     <string name="about_help_transactions_title">Transactions</string>
-    <string name="about_help_transactions_body">Tap + to add income or expense. Tap a row to edit it, or use delete to remove it. Search by name and filter with All / Income / Expense. Use the export icon next to Transactions to save the current list as CSV or Excel.</string>
+    <string name="about_help_transactions_body">Tap + to add income or expense, and tap a row to edit or delete it. Search covers the title, category, notes, and amount, including Persian digits and common Arabic/Persian letter variants. Use All, Income, Expense, and category filters to find entries quickly. The export icon next to Transactions saves the current list as CSV or Excel.</string>
     <string name="about_help_categories_title">Categories</string>
     <string name="about_help_categories_body">Open Categories from the home toolbar to add, rename, or delete income and expense categories. You pick them when saving a transaction.</string>
     <string name="about_help_reports_title">Reports</string>
@@ -302,7 +302,11 @@
     <string name="about_privacy_title">Privacy</string>
     <string name="about_privacy_body">No cloud account or server is required. Your data is stored only in a local database on this device. The app password is used only on this device to lock access.</string>
     <string name="about_help_settings_title">Settings &amp; password</string>
-    <string name="about_help_settings_body">Use the settings icon to change your password or lock the app so a password is required again.</string>
+    <string name="about_help_settings_body">Use the settings icon to switch between light and dark themes, change your password, or lock the app so a password is required again.</string>
+    <string name="about_help_quick_add_title">Quick-add shortcuts</string>
+    <string name="about_help_quick_add_body">Create shortcuts for recurring transactions with a default title, type, category, and note. Use them from the home screen to prepare a transaction in a few taps; shortcuts can be edited, enabled, or deleted in their settings.</string>
+    <string name="about_help_sms_title">Bank SMS capture</string>
+    <string name="about_help_sms_body">Enable SMS and notification access in Settings and add trusted senders. Valid messages become local drafts in a review queue; choose a title and category before confirming. Consecutive messages are preserved and reviewed in order.</string>
     <string name="about_footer">Built for simple income and expense tracking — Gelengeden</string>
     <!-- Bank SMS capture -->
     <string name="settings_sms_title">Bank SMS capture</string>
@@ -316,6 +320,8 @@
     <string name="sms_enable_notifications">Enable new-draft notifications</string>
     <string name="sms_senders_title">Trusted senders</string>
     <string name="sms_add_sender">Add sender</string>
+    <string name="sms_edit_sender_title">Edit sender</string>
+    <string name="sms_edit_sender">Edit sender %1$s</string>
     <string name="sms_no_senders">No sender has been added yet. Enter the sender address exactly as it appears at the top of the bank message.</string>
     <string name="sms_privacy_note">The full SMS body is not displayed or sent to any server. Only the amount, transaction type, time, and bank label are used to create a local draft.</string>
     <string name="sms_unit_rial">The SMS amount is in Rial; it will be converted to Toman.</string>

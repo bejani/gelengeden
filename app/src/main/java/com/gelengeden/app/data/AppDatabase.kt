@@ -16,7 +16,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         PendingBankSms::class,
         QuickAddTemplate::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -119,6 +119,23 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                seedDefaultBankSenders(db)
+            }
+        }
+
+        private fun seedDefaultBankSenders(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "INSERT OR IGNORE INTO bank_senders (label, address, amountWasRial) VALUES (?, ?, ?)",
+                arrayOf("بانک ملی", "+98700717", 0)
+            )
+            db.execSQL(
+                "INSERT OR IGNORE INTO bank_senders (label, address, amountWasRial) VALUES (?, ?, ?)",
+                arrayOf("بانک رسالت", "ResalatBank", 0)
+            )
+        }
+
         private fun seedDefaultCategories(db: SupportSQLiteDatabase) {
             DefaultCategories.income.forEachIndexed { index, name ->
                 db.execSQL(
@@ -141,12 +158,19 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "gelengeden.db"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                    .addMigrations(
+                        MIGRATION_1_2,
+                        MIGRATION_2_3,
+                        MIGRATION_3_4,
+                        MIGRATION_4_5,
+                        MIGRATION_5_6
+                    )
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
                             // Seed defaults on brand-new installs (v2+)
                             seedDefaultCategories(db)
+                            seedDefaultBankSenders(db)
                         }
                     })
                     .build()
