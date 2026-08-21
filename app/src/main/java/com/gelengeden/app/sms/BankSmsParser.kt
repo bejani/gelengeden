@@ -26,6 +26,14 @@ object BankSmsParser {
         pattern = """(?m)^\s*([+-])\s*([0-9۰-۹٠-٩,٬\s]+)\s*$"""
     )
 
+    /** Handles bank templates that put descriptive text between the transaction type and amount. */
+    private val labeledAmountPattern = Regex(
+        pattern = """(?im)(?:مبلغ\s*(?:تراکنش)?|amount)\s*[:：-]?\s*([0-9۰-۹٠-٩,٬\s]+)"""
+    )
+
+    private val debitHintPattern = Regex("(?i)(برداشت|خرید|پرداخت|debit|purchase|payment)")
+    private val creditHintPattern = Regex("(?i)(واریز|واريز|بستانکار|بستانكار|دریافت|credit|deposit)")
+
     fun parse(body: String): ParsedBankSms? {
         val match = transactionPattern.find(body)
         if (match != null) {
@@ -35,6 +43,16 @@ object BankSmsParser {
                 else -> return null
             }
             return parsedAmount(match.groupValues[2], type)
+        }
+
+        val labeledMatch = labeledAmountPattern.find(body)
+        if (labeledMatch != null) {
+            val type = when {
+                creditHintPattern.containsMatchIn(body) -> TransactionType.INCOME
+                debitHintPattern.containsMatchIn(body) -> TransactionType.EXPENSE
+                else -> return null
+            }
+            return parsedAmount(labeledMatch.groupValues[1], type)
         }
 
         val signedMatch = signedAmountLinePattern.find(body) ?: return null

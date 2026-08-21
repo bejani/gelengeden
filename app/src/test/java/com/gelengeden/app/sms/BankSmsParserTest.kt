@@ -62,6 +62,27 @@ class BankSmsParserTest {
     }
 
     @Test
+    fun `parses withdrawal when amount comes after description`() {
+        val parsed = BankSmsParser.parse("برداشت از کارت\nمبلغ تراکنش: ۱۲۳٬۴۵۶ ریال")
+        requireNotNull(parsed)
+        assertEquals(TransactionType.EXPENSE, parsed.type)
+        assertEquals(123_456.0, parsed.amount, 0.0)
+    }
+
+    @Test
+    fun `parses deposit when amount uses simple amount label`() {
+        val parsed = BankSmsParser.parse("واریز به حساب\nمبلغ: 2,500,000")
+        requireNotNull(parsed)
+        assertEquals(TransactionType.INCOME, parsed.type)
+        assertEquals(2_500_000.0, parsed.amount, 0.0)
+    }
+
+    @Test
+    fun `matches short phone sender without country prefix`() {
+        assertTrue(BankSmsParser.senderMatches("+98700717", "98700717"))
+    }
+
+    @Test
     fun `fingerprint is stable for same message`() {
         val first = BankSmsParser.fingerprint("BMI", "برداشت: 1,000", 1234L)
         val second = BankSmsParser.fingerprint("BMI", "برداشت: 1,000", 1234L)
