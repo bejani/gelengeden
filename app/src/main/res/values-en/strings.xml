@@ -377,6 +377,8 @@
     <string name="settings_recovery_code_body">This code is shown only once. Write it down and keep it somewhere safe; it cannot be shown again after closing this dialog.</string>
     <string name="settings_recovery_code_warning">Each code can be used only once. Use it to enter the app, then set a new pattern.</string>
     <string name="settings_recovery_code_close">I saved the code</string>
+    <string name="settings_recovery_code_share">Share</string>
+    <string name="settings_recovery_code_share_text">Gelengeden login pattern recovery code: %1$s</string>
     <string name="login_error_pattern_too_short">Choose at least 4 different nodes for the pattern.</string>
     <string name="login_error_wrong_pattern">The pattern is incorrect.</string>
     <string name="login_error_pattern_not_set">Create a pattern in Settings first.</string>

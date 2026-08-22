@@ -1,5 +1,6 @@
 package com.gelengeden.app.ui.screens
 
+import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -49,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -82,6 +84,7 @@ fun SettingsScreen(
     onBankSmsClick: () -> Unit,
     onLoggedOut: () -> Unit
 ) {
+    val context = LocalContext.current
     val authState by authViewModel.uiState.collectAsStateWithLifecycle()
     val changeState by authViewModel.changePasswordState.collectAsStateWithLifecycle()
     val patternState by authViewModel.patternSettingsState.collectAsStateWithLifecycle()
@@ -610,8 +613,29 @@ fun SettingsScreen(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { recoveryCodeToShow = null }) {
-                    Text(stringResource(R.string.settings_recovery_code_close))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(
+                        onClick = {
+                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(
+                                    Intent.EXTRA_TEXT,
+                                    context.getString(R.string.settings_recovery_code_share_text, code)
+                                )
+                            }
+                            context.startActivity(
+                                Intent.createChooser(
+                                    shareIntent,
+                                    context.getString(R.string.settings_recovery_code_share)
+                                )
+                            )
+                        }
+                    ) {
+                        Text(stringResource(R.string.settings_recovery_code_share))
+                    }
+                    TextButton(onClick = { recoveryCodeToShow = null }) {
+                        Text(stringResource(R.string.settings_recovery_code_close))
+                    }
                 }
             }
         )

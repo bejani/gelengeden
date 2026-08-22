@@ -384,6 +384,8 @@
     <string name="settings_recovery_code_body">این کد فقط یک‌بار نمایش داده می‌شود. آن را در جای امنی یادداشت کنید؛ پس از بستن این پنجره دیگر قابل نمایش نیست.</string>
     <string name="settings_recovery_code_warning">هر کد فقط یک‌بار قابل استفاده است. با استفاده از آن وارد برنامه شوید و الگوی جدید تنظیم کنید.</string>
     <string name="settings_recovery_code_close">کد را یادداشت کردم</string>
+    <string name="settings_recovery_code_share">اشتراک‌گذاری</string>
+    <string name="settings_recovery_code_share_text">کد بازیابی الگوی ورود گلنگدن: %1$s</string>
     <string name="login_error_pattern_too_short">الگو باید حداقل ۴ نقطهٔ متفاوت داشته باشد.</string>
     <string name="login_error_wrong_pattern">الگو نادرست است.</string>
     <string name="login_error_pattern_not_set">ابتدا یک الگو در تنظیمات بسازید.</string>
