@@ -61,6 +61,32 @@ class AuthManager(context: Context) {
         return verifyCredential(canonical, KEY_PATTERN_SALT, KEY_PATTERN_HASH)
     }
 
+    /** Generates a one-time recovery code; only its PBKDF2 hash is persisted. */
+    fun generateRecoveryCode(): Result<String> {
+        if (!isPatternSet()) {
+            return Result.failure(IllegalStateException(ERROR_PATTERN_NOT_SET))
+        }
+        val code = buildString(12) {
+            repeat(12) { append(RECOVERY_ALPHABET[SecureRandom().nextInt(RECOVERY_ALPHABET.length)]) }
+        }
+        persistCredential(code, KEY_RECOVERY_SALT, KEY_RECOVERY_HASH)
+        return Result.success(code)
+    }
+
+    /** Verifies and consumes the recovery code so it cannot be reused. */
+    fun consumeRecoveryCode(code: String): Boolean {
+        val normalized = code.filterNot(Char::isWhitespace).uppercase()
+        if (normalized.isBlank()) return false
+        val valid = verifyCredential(normalized, KEY_RECOVERY_SALT, KEY_RECOVERY_HASH)
+        if (valid) {
+            prefs.edit()
+                .remove(KEY_RECOVERY_SALT)
+                .remove(KEY_RECOVERY_HASH)
+                .apply()
+        }
+        return valid
+    }
+
     fun selectLoginMethod(method: LoginMethod): Result<Unit> {
         if (method == LoginMethod.PATTERN && !isPatternSet()) {
             return Result.failure(IllegalStateException(ERROR_PATTERN_NOT_SET))
@@ -138,6 +164,7 @@ class AuthManager(context: Context) {
         const val ERROR_SAME_PASSWORD = "same_password"
         const val ERROR_PATTERN_TOO_SHORT = "pattern_too_short"
         const val ERROR_PATTERN_NOT_SET = "pattern_not_set"
+        const val ERROR_WRONG_RECOVERY_CODE = "wrong_recovery_code"
 
         private const val PREFS_NAME = "gelengeden_auth"
         private const val KEY_PASSWORD_HASH = "password_hash"
@@ -145,6 +172,9 @@ class AuthManager(context: Context) {
         private const val KEY_PATTERN_HASH = "pattern_hash"
         private const val KEY_PATTERN_SALT = "pattern_salt"
         private const val KEY_LOGIN_METHOD = "login_method"
+        private const val KEY_RECOVERY_HASH = "recovery_code_hash"
+        private const val KEY_RECOVERY_SALT = "recovery_code_salt"
+        private const val RECOVERY_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
         private const val PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA256"
         private const val PBKDF2_ITERATIONS = 120_000

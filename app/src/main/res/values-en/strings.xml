@@ -368,7 +368,15 @@
     <string name="login_pattern_title">Enter your login pattern</string>
     <string name="login_pattern_subtitle">Draw your pattern. It will be checked automatically when you lift your finger.</string>
     <string name="login_use_password">Use password instead</string>
-    <string name="login_use_pattern">Use pattern instead</string>
+    <string name="login_use_pattern">Use pattern</string>
+    <string name="login_use_recovery_code">Use recovery code</string>
+    <string name="login_recovery_code">Recovery code</string>
+    <string name="login_recovery_code_hint">Enter your 12-character recovery code</string>
+    <string name="login_wrong_recovery_code">The recovery code is invalid or has already been used</string>
+    <string name="settings_recovery_code_title">Pattern recovery code</string>
+    <string name="settings_recovery_code_body">This code is shown only once. Write it down and keep it somewhere safe; it cannot be shown again after closing this dialog.</string>
+    <string name="settings_recovery_code_warning">Each code can be used only once. Use it to enter the app, then set a new pattern.</string>
+    <string name="settings_recovery_code_close">I saved the code</string>
     <string name="login_error_pattern_too_short">Choose at least 4 different nodes for the pattern.</string>
     <string name="login_error_wrong_pattern">The pattern is incorrect.</string>
     <string name="login_error_pattern_not_set">Create a pattern in Settings first.</string>

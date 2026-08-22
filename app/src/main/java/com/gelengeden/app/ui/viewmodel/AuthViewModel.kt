@@ -48,7 +48,8 @@ data class ChangePasswordUiState(
 data class PatternSettingsUiState(
     val isBusy: Boolean = false,
     val errorMessageKey: String? = null,
-    val success: Boolean = false
+    val success: Boolean = false,
+    val recoveryCode: String? = null
 )
 
 class AuthViewModel(
@@ -114,7 +115,9 @@ class AuthViewModel(
     }
 
     fun clearPatternFeedback() {
-        _patternSettingsState.update { it.copy(errorMessageKey = null, success = false) }
+        _patternSettingsState.update {
+            it.copy(errorMessageKey = null, success = false, recoveryCode = null)
+        }
     }
 
     fun setupPassword(password: String, confirmPassword: String) {
@@ -190,6 +193,28 @@ class AuthViewModel(
         }
     }
 
+    fun loginWithRecoveryCode(code: String) {
+        if (_uiState.value.isBusy) return
+        if (code.filterNot(Char::isWhitespace).isBlank()) {
+            _uiState.update { it.copy(errorMessageKey = AuthManager.ERROR_WRONG_RECOVERY_CODE) }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isBusy = true, errorMessageKey = null) }
+            val ok = withContext(Dispatchers.IO) { authManager.consumeRecoveryCode(code) }
+            if (ok) {
+                _uiState.update {
+                    it.copy(phase = AuthPhase.AUTHENTICATED, isBusy = false, errorMessageKey = null)
+                }
+            } else {
+                _uiState.update {
+                    it.copy(isBusy = false, errorMessageKey = AuthManager.ERROR_WRONG_RECOVERY_CODE)
+                }
+            }
+        }
+    }
+
     fun loginWithPattern(nodes: List<Int>) {
         if (_uiState.value.isBusy) return
         if (PatternCredential.canonicalize(nodes) == null) {
@@ -239,7 +264,12 @@ class AuthViewModel(
             _patternSettingsState.update { it.copy(isBusy = true, errorMessageKey = null, success = false) }
             val result = withContext(Dispatchers.IO) {
                 authManager.setPattern(nodes).fold(
-                    onSuccess = { authManager.selectLoginMethod(LoginMethod.PATTERN) },
+                    onSuccess = {
+                        authManager.selectLoginMethod(LoginMethod.PATTERN).fold(
+                            onSuccess = { authManager.generateRecoveryCode() },
+                            onFailure = { Result.failure(it) }
+                        )
+                    },
                     onFailure = { Result.failure(it) }
                 )
             }
@@ -248,7 +278,13 @@ class AuthViewModel(
                     _uiState.update {
                         it.copy(loginMethod = LoginMethod.PATTERN, isPatternSet = true)
                     }
-                    _patternSettingsState.update { it.copy(isBusy = false, success = true) }
+                    _patternSettingsState.update {
+                        it.copy(
+                            isBusy = false,
+                            success = true,
+                            recoveryCode = result.getOrNull()
+                        )
+                    }
                 },
                 onFailure = { error ->
                     _patternSettingsState.update {

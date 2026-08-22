@@ -376,6 +376,14 @@
     <string name="login_pattern_subtitle">الگوی خود را بکشید؛ پس از برداشتن انگشت، ورود به‌طور خودکار بررسی می‌شود.</string>
     <string name="login_use_password">ورود با رمز عبور</string>
     <string name="login_use_pattern">ورود با الگو</string>
+    <string name="login_use_recovery_code">ورود با کد بازیابی</string>
+    <string name="login_recovery_code">کد بازیابی</string>
+    <string name="login_recovery_code_hint">کد ۱۲ رقمی بازیابی را وارد کنید</string>
+    <string name="login_wrong_recovery_code">کد بازیابی نادرست یا قبلاً مصرف شده است</string>
+    <string name="settings_recovery_code_title">کد بازیابی الگو</string>
+    <string name="settings_recovery_code_body">این کد فقط یک‌بار نمایش داده می‌شود. آن را در جای امنی یادداشت کنید؛ پس از بستن این پنجره دیگر قابل نمایش نیست.</string>
+    <string name="settings_recovery_code_warning">هر کد فقط یک‌بار قابل استفاده است. با استفاده از آن وارد برنامه شوید و الگوی جدید تنظیم کنید.</string>
+    <string name="settings_recovery_code_close">کد را یادداشت کردم</string>
     <string name="login_error_pattern_too_short">الگو باید حداقل ۴ نقطهٔ متفاوت داشته باشد.</string>
     <string name="login_error_wrong_pattern">الگو نادرست است.</string>
     <string name="login_error_pattern_not_set">ابتدا یک الگو در تنظیمات بسازید.</string>

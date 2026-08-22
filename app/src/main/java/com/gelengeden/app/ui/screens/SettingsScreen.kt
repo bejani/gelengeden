@@ -21,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -51,6 +52,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -97,6 +99,7 @@ fun SettingsScreen(
     var confirmPattern by remember { mutableStateOf<List<Int>>(emptyList()) }
     var patternSetupStep by remember { mutableStateOf(PatternSetupStep.IDLE) }
     var localPatternErrorKey by remember { mutableStateOf<String?>(null) }
+    var recoveryCodeToShow by remember { mutableStateOf<String?>(null) }
 
     val successMessage = stringResource(R.string.settings_password_changed)
     val patternSuccessMessage = stringResource(R.string.settings_pattern_saved)
@@ -116,8 +119,9 @@ fun SettingsScreen(
     val errorText = authErrorMessage(changeState.errorMessageKey)
     val patternErrorText = authErrorMessage(localPatternErrorKey ?: patternState.errorMessageKey)
 
-    LaunchedEffect(patternState.success) {
+    LaunchedEffect(patternState.success, patternState.recoveryCode) {
         if (patternState.success) {
+            recoveryCodeToShow = patternState.recoveryCode
             newPattern = emptyList()
             confirmPattern = emptyList()
             patternSetupStep = PatternSetupStep.IDLE
@@ -582,6 +586,35 @@ fun SettingsScreen(
 
             item { Spacer(modifier = Modifier.height(24.dp)) }
         }
+    }
+
+    recoveryCodeToShow?.let { code ->
+        AlertDialog(
+            onDismissRequest = { recoveryCodeToShow = null },
+            title = { Text(stringResource(R.string.settings_recovery_code_title)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(stringResource(R.string.settings_recovery_code_body))
+                    Text(
+                        text = code,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_recovery_code_warning),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { recoveryCodeToShow = null }) {
+                    Text(stringResource(R.string.settings_recovery_code_close))
+                }
+            }
+        )
     }
 }
 

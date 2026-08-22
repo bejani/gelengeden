@@ -67,6 +67,8 @@ fun LoginScreen(
     var confirmVisible by remember { mutableStateOf(false) }
     var patternNodes by remember { mutableStateOf<List<Int>>(emptyList()) }
     var usePasswordFallback by remember { mutableStateOf(false) }
+    var useRecoveryCode by remember { mutableStateOf(false) }
+    var recoveryCode by remember { mutableStateOf("") }
 
     LaunchedEffect(uiState.phase, uiState.loginMethod) {
         password = ""
@@ -75,6 +77,8 @@ fun LoginScreen(
         confirmVisible = false
         patternNodes = emptyList()
         usePasswordFallback = false
+        useRecoveryCode = false
+        recoveryCode = ""
         authViewModel.clearError()
     }
 
@@ -89,9 +93,13 @@ fun LoginScreen(
     }
 
     val isSetup = uiState.phase == AuthPhase.SETUP
+    val usesRecoveryLogin = !isSetup &&
+        uiState.loginMethod == LoginMethod.PATTERN &&
+        useRecoveryCode
     val usesPatternLogin = !isSetup &&
         uiState.loginMethod == LoginMethod.PATTERN &&
-        !usePasswordFallback
+        !usePasswordFallback &&
+        !useRecoveryCode
     val errorText = authErrorMessage(uiState.errorMessageKey)
 
     Surface(
@@ -189,11 +197,17 @@ fun LoginScreen(
                 ) {
                     Text(stringResource(R.string.login_use_password))
                 }
+                TextButton(
+                    onClick = { useRecoveryCode = true },
+                    enabled = !uiState.isBusy
+                ) {
+                    Text(stringResource(R.string.login_use_recovery_code))
+                }
             } else {
                 OutlinedTextField(
-                    value = password,
+                    value = if (usesRecoveryLogin) recoveryCode else password,
                     onValueChange = {
-                        password = it
+                        if (usesRecoveryLogin) recoveryCode = it else password = it
                         if (uiState.errorMessageKey != null) authViewModel.clearError()
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -202,15 +216,19 @@ fun LoginScreen(
                     label = {
                         Text(
                             stringResource(
-                                if (isSetup) R.string.login_new_password else R.string.login_password
+                                when {
+                                    isSetup -> R.string.login_new_password
+                                    usesRecoveryLogin -> R.string.login_recovery_code
+                                    else -> R.string.login_password
+                                }
                             )
                         )
                     },
                     leadingIcon = {
                         Icon(Icons.Default.Lock, contentDescription = null)
                     },
-                    trailingIcon = {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    trailingIcon = if (usesRecoveryLogin) null else {
+                        { IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(
                                 imageVector = if (passwordVisible) {
                                     Icons.Default.VisibilityOff
@@ -222,15 +240,17 @@ fun LoginScreen(
                                     else R.string.login_show_password
                                 )
                             )
-                        }
+                        } }
                     },
-                    visualTransformation = if (passwordVisible) {
+                    visualTransformation = if (usesRecoveryLogin) {
+                        VisualTransformation.None
+                    } else if (passwordVisible) {
                         VisualTransformation.None
                     } else {
                         PasswordVisualTransformation()
                     },
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password,
+                        keyboardType = if (usesRecoveryLogin) KeyboardType.Ascii else KeyboardType.Password,
                         imeAction = if (isSetup) ImeAction.Next else ImeAction.Done
                     ),
                     keyboardActions = KeyboardActions(
@@ -238,7 +258,11 @@ fun LoginScreen(
                         onDone = {
                             if (!isSetup && !uiState.isBusy) {
                                 focusManager.clearFocus()
-                                authViewModel.login(password)
+                                if (usesRecoveryLogin) {
+                                    authViewModel.loginWithRecoveryCode(recoveryCode)
+                                } else {
+                                    authViewModel.login(password)
+                                }
                             }
                         }
                     ),
@@ -287,7 +311,11 @@ fun LoginScreen(
                             onDone = {
                                 if (!uiState.isBusy) {
                                     focusManager.clearFocus()
-                                    authViewModel.setupPassword(password, confirmPassword)
+                                    if (usesRecoveryLogin) {
+                                        authViewModel.loginWithRecoveryCode(recoveryCode)
+                                    } else {
+                                        authViewModel.setupPassword(password, confirmPassword)
+                                    }
                                 }
                             }
                         ),
@@ -321,10 +349,10 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         focusManager.clearFocus()
-                        if (isSetup) {
-                            authViewModel.setupPassword(password, confirmPassword)
-                        } else {
-                            authViewModel.login(password)
+                        when {
+                            isSetup -> authViewModel.setupPassword(password, confirmPassword)
+                            usesRecoveryLogin -> authViewModel.loginWithRecoveryCode(recoveryCode)
+                            else -> authViewModel.login(password)
                         }
                     },
                     modifier = Modifier
@@ -351,7 +379,10 @@ fun LoginScreen(
 
                 if (!isSetup && uiState.isPatternSet) {
                     TextButton(
-                        onClick = { usePasswordFallback = false },
+                        onClick = {
+                            usePasswordFallback = false
+                            useRecoveryCode = false
+                        },
                         enabled = !uiState.isBusy
                     ) {
                         Text(stringResource(R.string.login_use_pattern))
@@ -374,6 +405,7 @@ fun authErrorMessage(key: String?): String? {
         AuthManager.ERROR_PATTERN_NOT_SET -> stringResource(R.string.login_error_pattern_not_set)
         AuthManager.ERROR_WRONG_CURRENT,
         AuthViewModel.ERROR_WRONG_PASSWORD -> stringResource(R.string.login_error_wrong_password)
+        AuthManager.ERROR_WRONG_RECOVERY_CODE -> stringResource(R.string.login_wrong_recovery_code)
         AuthViewModel.ERROR_WRONG_PATTERN -> stringResource(R.string.login_error_wrong_pattern)
         AuthViewModel.ERROR_MISMATCH -> stringResource(R.string.login_error_mismatch)
         AuthViewModel.ERROR_EMPTY,
