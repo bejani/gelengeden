@@ -2,8 +2,11 @@ package com.gelengeden.app
 
 import android.content.Context
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -28,7 +31,7 @@ import com.gelengeden.app.ui.viewmodel.AuthPhase
 import com.gelengeden.app.ui.viewmodel.AuthViewModel
 import com.gelengeden.app.ui.viewmodel.TransactionViewModel
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(LocaleHelper.wrap(newBase))
@@ -67,7 +70,12 @@ class MainActivity : ComponentActivity() {
                             }
 
                             AuthPhase.SETUP, AuthPhase.LOGIN -> {
-                                LoginScreen(authViewModel = authViewModel)
+                                LoginScreen(
+                                    authViewModel = authViewModel,
+                                    onBiometricLogin = {
+                                        showBiometricPrompt(authViewModel)
+                                    }
+                                )
                             }
 
                             AuthPhase.AUTHENTICATED -> {
@@ -88,5 +96,30 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun showBiometricPrompt(authViewModel: AuthViewModel) {
+        val biometricManager = BiometricManager.from(this)
+        val authenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG
+        if (biometricManager.canAuthenticate(authenticators) != BiometricManager.BIOMETRIC_SUCCESS) {
+            return
+        }
+
+        val promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle(getString(com.gelengeden.app.R.string.login_biometric_title))
+            .setSubtitle(getString(com.gelengeden.app.R.string.login_biometric_subtitle))
+            .setNegativeButtonText(getString(com.gelengeden.app.R.string.login_use_password))
+            .setAllowedAuthenticators(authenticators)
+            .build()
+        val executor = ContextCompat.getMainExecutor(this)
+        BiometricPrompt(
+            this,
+            executor,
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    authViewModel.completeBiometricLogin()
+                }
+            }
+        ).authenticate(promptInfo)
     }
 }

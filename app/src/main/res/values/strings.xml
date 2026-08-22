@@ -375,6 +375,12 @@
     <string name="login_pattern_title">الگوی ورود را وارد کنید</string>
     <string name="login_pattern_subtitle">الگوی خود را بکشید؛ پس از برداشتن انگشت، ورود به‌طور خودکار بررسی می‌شود.</string>
     <string name="login_use_password">ورود با رمز عبور</string>
+    <string name="login_use_biometric">ورود با اثر انگشت یا بیومتریک</string>
+    <string name="login_biometric_title">تأیید هویت</string>
+    <string name="login_biometric_subtitle">برای ورود، بیومتریک خود را تأیید کنید.</string>
+    <string name="settings_biometric_title">ورود با اثر انگشت یا بیومتریک</string>
+    <string name="settings_biometric_body">در گوشی‌های دارای اثر انگشت یا تشخیص چهره، ورود سریع و امن با بیومتریک را فعال کنید.</string>
+    <string name="settings_biometric_unavailable">برای فعال‌سازی، ابتدا یک قفل بیومتریک در تنظیمات گوشی ثبت کنید.</string>
     <string name="login_use_pattern">ورود با الگو</string>
     <string name="login_use_recovery_code">ورود با کد بازیابی</string>
     <string name="login_recovery_code">کد بازیابی</string>

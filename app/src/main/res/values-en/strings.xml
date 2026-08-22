@@ -368,6 +368,12 @@
     <string name="login_pattern_title">Enter your login pattern</string>
     <string name="login_pattern_subtitle">Draw your pattern. It will be checked automatically when you lift your finger.</string>
     <string name="login_use_password">Use password instead</string>
+    <string name="login_use_biometric">Use fingerprint or biometrics</string>
+    <string name="login_biometric_title">Verify your identity</string>
+    <string name="login_biometric_subtitle">Authenticate with your biometric to sign in.</string>
+    <string name="settings_biometric_title">Fingerprint or biometric login</string>
+    <string name="settings_biometric_body">Enable fast and secure biometric login on devices with fingerprint or face authentication.</string>
+    <string name="settings_biometric_unavailable">Register a biometric lock in your phone settings before enabling this option.</string>
     <string name="login_use_pattern">Use pattern</string>
     <string name="login_use_recovery_code">Use recovery code</string>
     <string name="login_recovery_code">Recovery code</string>

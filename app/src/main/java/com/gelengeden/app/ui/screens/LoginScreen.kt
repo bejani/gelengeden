@@ -56,7 +56,8 @@ import com.gelengeden.app.ui.viewmodel.AuthViewModel
 
 @Composable
 fun LoginScreen(
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    onBiometricLogin: () -> Unit = {}
 ) {
     val uiState by authViewModel.uiState.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
@@ -374,6 +375,17 @@ fun LoginScreen(
                             ),
                             style = MaterialTheme.typography.titleMedium
                         )
+                    }
+                }
+
+                if (!isSetup && uiState.biometricEnabled) {
+                    OutlinedButton(
+                        onClick = onBiometricLogin,
+                        enabled = !uiState.isBusy,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(stringResource(R.string.login_use_biometric))
                     }
                 }
 

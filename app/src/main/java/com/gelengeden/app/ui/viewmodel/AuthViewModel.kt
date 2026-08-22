@@ -36,7 +36,8 @@ data class AuthUiState(
     val isBusy: Boolean = false,
     val errorMessageKey: String? = null,
     val loginMethod: LoginMethod = LoginMethod.PASSWORD,
-    val isPatternSet: Boolean = false
+    val isPatternSet: Boolean = false,
+    val biometricEnabled: Boolean = false
 )
 
 data class ChangePasswordUiState(
@@ -75,9 +76,17 @@ class AuthViewModel(
     fun refreshPhase() {
         viewModelScope.launch {
             val authState = withContext(Dispatchers.IO) {
-                Triple(authManager.isPasswordSet(), authManager.isPatternSet(), authManager.loginMethod())
+                listOf(
+                    authManager.isPasswordSet(),
+                    authManager.isPatternSet(),
+                    authManager.loginMethod(),
+                    authManager.isBiometricEnabled()
+                )
             }
-            val (passwordSet, patternSet, method) = authState
+            val passwordSet = authState[0] as Boolean
+            val patternSet = authState[1] as Boolean
+            val method = authState[2] as LoginMethod
+            val biometricEnabled = authState[3] as Boolean
             val current = _uiState.value.phase
             // Keep authenticated across config changes / re-check.
             if (current == AuthPhase.AUTHENTICATED) {
@@ -87,7 +96,8 @@ class AuthViewModel(
                         isBusy = false,
                         errorMessageKey = null,
                         loginMethod = method,
-                        isPatternSet = patternSet
+                        isPatternSet = patternSet,
+                        biometricEnabled = biometricEnabled
                     )
                 }
             } else {
@@ -97,7 +107,8 @@ class AuthViewModel(
                         isBusy = false,
                         errorMessageKey = null,
                         loginMethod = method,
-                        isPatternSet = patternSet
+                        isPatternSet = patternSet,
+                        biometricEnabled = biometricEnabled
                     )
                 }
             }
@@ -106,6 +117,21 @@ class AuthViewModel(
 
     fun clearError() {
         _uiState.update { it.copy(errorMessageKey = null) }
+    }
+
+    fun setBiometricEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) { authManager.setBiometricEnabled(enabled) }
+            if (result.isSuccess) {
+                _uiState.update { it.copy(biometricEnabled = enabled, errorMessageKey = null) }
+            }
+        }
+    }
+
+    fun completeBiometricLogin() {
+        _uiState.update {
+            it.copy(phase = AuthPhase.AUTHENTICATED, isBusy = false, errorMessageKey = null)
+        }
     }
 
     fun clearChangePasswordFeedback() {

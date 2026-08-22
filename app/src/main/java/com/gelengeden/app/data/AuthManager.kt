@@ -22,6 +22,16 @@ class AuthManager(context: Context) {
     fun isPatternSet(): Boolean =
         prefs.contains(KEY_PATTERN_HASH) && prefs.contains(KEY_PATTERN_SALT)
 
+    fun isBiometricEnabled(): Boolean = prefs.getBoolean(KEY_BIOMETRIC_ENABLED, false)
+
+    fun setBiometricEnabled(enabled: Boolean): Result<Unit> {
+        if (enabled && !isPasswordSet()) {
+            return Result.failure(IllegalStateException(ERROR_NOT_SET))
+        }
+        prefs.edit().putBoolean(KEY_BIOMETRIC_ENABLED, enabled).apply()
+        return Result.success(Unit)
+    }
+
     fun loginMethod(): LoginMethod = runCatching {
         LoginMethod.valueOf(prefs.getString(KEY_LOGIN_METHOD, LoginMethod.PASSWORD.name).orEmpty())
     }.getOrDefault(LoginMethod.PASSWORD).let { method ->
@@ -172,6 +182,7 @@ class AuthManager(context: Context) {
         private const val KEY_PATTERN_HASH = "pattern_hash"
         private const val KEY_PATTERN_SALT = "pattern_salt"
         private const val KEY_LOGIN_METHOD = "login_method"
+        private const val KEY_BIOMETRIC_ENABLED = "biometric_enabled"
         private const val KEY_RECOVERY_HASH = "recovery_code_hash"
         private const val KEY_RECOVERY_SALT = "recovery_code_salt"
         private const val RECOVERY_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"

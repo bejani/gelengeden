@@ -1,6 +1,7 @@
 package com.gelengeden.app.ui.screens
 
 import android.content.Intent
+import androidx.biometric.BiometricManager
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -85,6 +87,11 @@ fun SettingsScreen(
     onLoggedOut: () -> Unit
 ) {
     val context = LocalContext.current
+    val biometricAvailable = remember(context) {
+        BiometricManager.from(context).canAuthenticate(
+            BiometricManager.Authenticators.BIOMETRIC_STRONG
+        ) == BiometricManager.BIOMETRIC_SUCCESS
+    }
     val authState by authViewModel.uiState.collectAsStateWithLifecycle()
     val changeState by authViewModel.changePasswordState.collectAsStateWithLifecycle()
     val patternState by authViewModel.patternSettingsState.collectAsStateWithLifecycle()
@@ -377,6 +384,39 @@ fun SettingsScreen(
                                     Text(stringResource(R.string.settings_login_method_pattern))
                                 }
                             }
+                        }
+                        Spacer(modifier = Modifier.height(18.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = stringResource(R.string.settings_biometric_title),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = stringResource(R.string.settings_biometric_body),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                if (!biometricAvailable) {
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = stringResource(R.string.settings_biometric_unavailable),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
+                            Switch(
+                                checked = authState.biometricEnabled,
+                                onCheckedChange = { authViewModel.setBiometricEnabled(it) },
+                                enabled = biometricAvailable
+                            )
                         }
                     }
                 }
