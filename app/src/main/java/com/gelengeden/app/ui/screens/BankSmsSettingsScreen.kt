@@ -1,11 +1,11 @@
 package com.gelengeden.app.ui.screens
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -43,6 +43,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -77,19 +79,18 @@ fun BankSmsSettingsScreen(
     }
     var showAddDialog by remember { mutableStateOf(false) }
     var editingSender by remember { mutableStateOf<BankSender?>(null) }
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    val notificationPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        hasNotificationPermission = granted
-    }
-    val smsPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        hasSmsPermission = granted
-        if (granted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasNotificationPermission) {
-            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+    DisposableEffect(lifecycleOwner, context) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                hasSmsPermission = context.hasPermission(Manifest.permission.RECEIVE_SMS)
+                hasNotificationPermission = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                    context.hasPermission(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     LaunchedEffect(Unit) {
@@ -152,8 +153,10 @@ fun BankSmsSettingsScreen(
                                 Spacer(modifier = Modifier.height(10.dp))
                                 OutlinedButton(
                                     onClick = {
-                                        notificationPermissionLauncher.launch(
-                                            Manifest.permission.POST_NOTIFICATIONS
+                                        requestSmsPermission(
+                                            context,
+                                            Manifest.permission.POST_NOTIFICATIONS,
+                                            NOTIFICATION_PERMISSION_REQUEST_CODE
                                         )
                                     },
                                     modifier = Modifier.fillMaxWidth()
@@ -164,7 +167,11 @@ fun BankSmsSettingsScreen(
                         } else {
                             Button(
                                 onClick = {
-                                    smsPermissionLauncher.launch(Manifest.permission.RECEIVE_SMS)
+                                    requestSmsPermission(
+                                        context,
+                                        Manifest.permission.RECEIVE_SMS,
+                                        SMS_PERMISSION_REQUEST_CODE
+                                    )
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp)
@@ -366,3 +373,11 @@ private fun AddBankSenderDialog(
 
 private fun Context.hasPermission(permission: String): Boolean =
     checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+
+private const val SMS_PERMISSION_REQUEST_CODE = 4101
+private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 4102
+
+private fun requestSmsPermission(context: Context, permission: String, requestCode: Int) {
+    val activity = context as? Activity ?: return
+    ActivityCompat.requestPermissions(activity, arrayOf(permission), requestCode)
+}
